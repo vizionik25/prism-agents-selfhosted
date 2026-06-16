@@ -1,0 +1,47 @@
+# Root .dockerignore for monorepo builds
+
+# Backend
+backend/.venv
+backend/__pycache__
+backend/*.pyc
+backend/.pytest_cache
+backend/.ruff_cache
+backend/.mypy_cache
+backend/.env
+backend/.env.*
+backend/dist
+backend/build
+backend/*.egg-info
+backend/tests
+backend/.vscode
+backend/.idea
+
+# Frontend
+frontend/node_modules
+frontend/.next
+frontend/dist
+frontend/build
+frontend/*.log
+frontend/.env
+frontend/.env.*
+frontend/.vscode
+frontend/.idea
+
+# Git
+.git
+.gitignore
+.github
+
+# Docker
+**/docker-compose*.yml
+**/.dockerignore
+
+# IDE / OS
+.DS_Store
+*.swp
+*.swo
+
+# Misc
+*.log
+*.md
+!README.md

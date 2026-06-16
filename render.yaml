@@ -1,0 +1,90 @@
+# Render Blueprint — backend only.
+# Frontend is deployed separately on Vercel.
+#
+# Deploy via:  Render Dashboard → New + → Blueprint → connect this repo →
+#              Render reads this file from the repo root.
+#
+# Why this shape:
+#   - Free plan ($0/mo). Service spins down after ~15 min idle; first request
+#     after that pays ~30s cold-start. Free has NO preDeployCommand support, so
+#     we bake `prisma migrate deploy` into startCommand instead. It's idempotent;
+#     running it on every cold start is fine.
+#   - To upgrade: change `plan: free` → `plan: starter` (or higher) and move
+#     `prisma migrate deploy` from startCommand into a `preDeployCommand:` field.
+#     See DEPLOYMENT.md.
+#
+#   - rootDir: backend → so dockerfilePath / build context resolve under backend/.
+#   - dockerfilePath is relative to rootDir (i.e. it points at backend/Dockerfile).
+#   - $PORT is injected by Render (defaults to 10000); the Dockerfile's CMD
+#     already honors it, but we override startCommand here to chain the migrate.
+#
+# All sensitive env vars are declared with `sync: false` — Render prompts for
+# each one when you create the Blueprint, then stores it on the service. The
+# values listed in backend/.env.example are placeholders only.
+
+services:
+  - type: web
+    name: prism-agents-api
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    # Free-tier migration: chain migrate before uvicorn. On Starter+, drop the
+    # `prisma migrate deploy &&` and add a top-level `preDeployCommand` instead.
+    dockerCommand: 'sh -c "prisma migrate deploy && uvicorn media_agents.main:app --host 0.0.0.0 --port ${PORT:-10000}"'
+    envVars:
+      # ── Non-secret defaults (committed) ───────────────────────────────────
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRATION_HOURS
+        value: "24"
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.1"
+      - key: SENTRY_PROFILE_SAMPLE_RATE
+        value: "0.1"
+      # Sentry DSN is public (it's safe to commit; it's already in .env.example).
+      - key: SENTRY_DSN
+        value: https://47b42962739cfb1e1274a19c5bf885dd@o4511277311655936.ingest.us.sentry.io/4511277324828672
+
+      # ── Secrets (prompted on Blueprint create, stored per-service) ────────
+      # Database — Neon. DATABASE_URL is the pooled connection (runtime); DIRECT_URL
+      # is the direct connection (used by `prisma migrate deploy` at startup).
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+
+      # Auth
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true   # Render generates a 256-bit secret on first create.
+
+      # fal.ai
+      - key: FAL_KEY
+        sync: false
+
+      # CORS — set this to your Vercel frontend URL after the frontend is deployed.
+      - key: FRONTEND_URL
+        sync: false
+
+      # Sentry release tagging (optional — leave blank if you don't tag releases)
+      - key: SENTRY_AUTH_TOKEN
+        sync: false
+
+      # Self-hosted configuration
+      - key: SELF_HOSTED
+        value: "true"
+      - key: PRISM_LICENSE_KEY
+        sync: false
+
+      # PostHog (optional — analytics is a no-op when unset, see analytics/README.md)
+      - key: POSTHOG_API_KEY
+        sync: false

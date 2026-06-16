@@ -1,0 +1,166 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-py"
+}
+
+model User {
+  id          String    @id @default(uuid())
+  githubId    String?   @unique @map("github_id")
+  username    String    @unique
+  email       String    @unique
+  passwordHash String?   @map("password_hash")
+  avatarUrl   String?   @map("avatar_url")
+  accessToken String?   @map("access_token")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+  subscriptionTier     SubscriptionTier @default(FREE_TRIAL) @map("subscription_tier")
+  subscriptionCredits  Int              @default(0) @map("subscription_credits")
+  packCredits          Int              @default(5) @map("pack_credits")
+  creditsResetAt       DateTime?        @map("credits_reset_at") @db.Timestamptz
+  stripeCustomerId     String?          @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?          @unique @map("stripe_subscription_id")
+  role                 UserRole         @default(USER) @map("role")
+
+  apiKeys              ApiKey[]
+  apiDisclaimerAgreedAt DateTime? @map("api_disclaimer_agreed_at") @db.Timestamptz
+
+  boards      Board[]
+  agents      Agent[]
+  teams       Team[]
+  generations Generation[]
+
+  @@map("users")
+}
+
+model Board {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agents      Agent[]
+  teams       Team[]
+  generations Generation[]
+
+  @@map("boards")
+}
+
+model Agent {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  boardId      String?  @map("board_id")
+  name         String
+  description  String?
+  systemPrompt String   @map("system_prompt")
+  config       Json     @default("{}")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board        Board?       @relation(fields: [boardId], references: [id], onDelete: SetNull)
+  generations  Generation[]
+
+  @@map("agents")
+}
+
+model Team {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  boardId      String?  @map("board_id")
+  name         String
+  description  String?
+  members      Json     @default("{}")
+  orchestrator Json     @default("{}")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board Board? @relation(fields: [boardId], references: [id], onDelete: SetNull)
+
+  @@map("teams")
+}
+
+enum GenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SubscriptionTier {
+  FREE_TRIAL
+  STARTER
+  PLUS
+  PRO
+  ENTERPRISE
+
+  @@map("subscription_tier")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+
+  @@map("user_role")
+}
+
+model Generation {
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  boardId       String           @map("board_id")
+  agentId       String?          @map("agent_id")
+  prompt        String
+  status        GenerationStatus @default(PENDING)
+  resultUrl     String?          @map("result_url")
+  resultType    String?          @map("result_type")
+  metadata      Json             @default("{}")
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board         Board             @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  agent         Agent?            @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  variants      GenerationVariant[]
+
+  @@map("generations")
+}
+
+model GenerationVariant {
+  id            String   @id @default(uuid())
+  generationId  String   @map("generation_id")
+  variantIndex  Int      @default(0) @map("variant_index")
+  resultUrl     String?  @map("result_url")
+  resultType    String?  @map("result_type")
+  metadata      Json     @default("{}")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  generation    Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+
+  @@map("generation_variants")
+}
+
+model ApiKey {
+  id                 String    @id @default(uuid())
+  userId             String    @map("user_id")
+  name               String
+  keyHash            String    @unique @map("key_hash")
+  keyPrefix          String    @map("key_prefix")
+  agreedToDisclaimer Boolean   @default(false) @map("agreed_to_disclaimer")
+  lastUsedAt         DateTime? @map("last_used_at") @db.Timestamptz
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  revokedAt          DateTime? @map("revoked_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}

@@ -1,0 +1,10 @@
+# Force LF on shell scripts and Dockerfiles so Windows git checkouts don't
+# produce CRLF-broken files inside Linux containers.
+*.sh              text eol=lf
+Dockerfile        text eol=lf
+*.Dockerfile      text eol=lf
+docker-entrypoint text eol=lf
+
+# Default everything else to git's auto handling so Windows developers still
+# get native CRLF where it's harmless (Markdown, etc.).
+* text=auto

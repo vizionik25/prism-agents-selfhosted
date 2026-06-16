@@ -1,0 +1,43 @@
+# Python / uv
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# Local env / secrets — NEVER ship secrets into the image
+.env
+.env.*
+!.env.example
+
+# Build artifacts that are recreated in the builder stage
+dist
+build
+*.egg-info
+
+# Dev tooling
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git + CI
+.git
+.gitignore
+.github
+
+# Docker files themselves — context bloat avoidance, but only the compose file.
+# Keep the Dockerfile in context so Railway's static checks see the latest version.
+docker-compose*.yml
+.dockerignore
+
+# Tests (keep if you want to run them in the container; dropping for smaller images)
+tests
+
+# Misc
+# NOTE: README.md is NOT ignored — pyproject.toml declares `readme = "README.md"`
+# so the uv build backend requires it to install the project.
+*.log

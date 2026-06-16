@@ -1,0 +1,40 @@
+# Node / npm
+node_modules
+.next
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist
+build
+
+# Local env / secrets — NEVER ship secrets into the image
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+# Dev tooling
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git + CI
+.git
+.gitignore
+.github
+
+# Docker files
+docker-compose*.yml
+.dockerignore
+
+# Tests
+*.test.ts
+*.test.tsx
+vitest.config.ts
+vitest.setup.ts
+
+# Misc
+*.md
+!README.md

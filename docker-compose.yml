@@ -1,0 +1,89 @@
+# PrismAgents self-hosted — complete local stack
+#
+# Services:
+#   postgres  — PostgreSQL 16 (local dev database)
+#   backend   — FastAPI + PydanticAI + Prisma (API on :8000)
+#   frontend  — Next.js 16 + React 19 (UI on :3000)
+#
+# Quick start:
+#   1. Copy backend/.env.docker.example to backend/.env and set your FAL_KEY
+#   2. Copy frontend/.env.docker.example to frontend/.env.local
+#   3. docker compose up --build
+#   4. Open http://localhost:3000
+#
+# Requirements:
+#   - FAL_KEY in backend/.env (required for AI generation)
+#   - GITHUB_CLIENT_ID/SECRET in backend/.env (optional, for GitHub OAuth)
+#   - PRISM_LICENSE_KEY in backend/.env (optional, for API key access)
+#   - SENTRY_DSN in backend/.env and frontend/.env.local (optional, for error tracking)
+
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: prism-agents-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prism_agents
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: prism-agents-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override for local Docker networking
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/prism_agents?sslmode=disable"
+      DIRECT_URL: "postgresql://postgres:postgres@postgres:5432/prism_agents?sslmode=disable"
+      FRONTEND_URL: "http://localhost:3000"
+      SELF_HOSTED: "true"
+      PORT: "8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: prism-agents-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      # Override for local Docker networking
+      NEXT_PUBLIC_API_URL: "http://localhost:8000"
+      NEXT_PUBLIC_SELF_HOSTED: "true"
+      PORT: "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
