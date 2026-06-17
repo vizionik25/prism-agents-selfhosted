@@ -127,4 +127,11 @@ Frontend (`frontend/.env.local`):
 
 ## License
 
-Unlicensed — community/self-hosted edition.
+Licensed under the **Elastic License 2.0 (ELv2)** — see [LICENSE](LICENSE) for details.
+
+This license allows:
+- ✅ Free self-hosted use (personal, internal, non-commercial)
+- ✅ Free use as part of a larger product/service that adds substantial value
+- ❌ Offering the software as a managed service / SaaS / cloud service to third parties
+
+For commercial SaaS offerings, managed hosting, or enterprise features (API access, SSO, etc.), a commercial license is available — contact us for details.

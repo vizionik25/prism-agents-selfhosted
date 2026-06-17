@@ -1,0 +1,233 @@
+Elastic License 2.0 (ELv2)
+
+Copyright (c) 2024 PrismAgents
+
+You may not use this file except in compliance with the Elastic License 2.0.
+You may obtain a copy of the Elastic License 2.0 at:
+
+https://www.elastic.co/elastic-license-v2.html
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+================================================================================
+ELASTIC LICENSE 2.0 (ELv2)
+================================================================================
+
+NOTICE: This software is licensed under the Elastic License 2.0 (the "License").
+You may not use this file except in compliance with the License. You may obtain a
+copy of the License at https://www.elastic.co/elastic-license-v2.html. Unless
+required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+OF ANY KIND, either express or implied. See the License for the specific
+language governing permissions and limitations under the License.
+
+Subject to the terms and conditions of this License, Licensor hereby grants You
+a worldwide, royalty-free, non-exclusive, non-sublicensable license to:
+
+(a) use, copy, and create Derivative Works of the Software for Your own
+    individual, non-commercial, internal purposes;
+
+(b) distribute the Software or Derivative Works as part of a larger product or
+    service that adds substantial value, provided that You do not make the
+    functionality of the Software or Derivative Works available to third
+    parties as a service; and
+
+(c) permit persons to whom the Software or Derivative Works are furnished to
+    do the foregoing, subject to the terms of this License.
+
+"Derivative Works" means any work, whether in Source Code or object code form,
+that is based on (or derived from) the Software and for which the editorial
+revisions, annotations, elaborations, or other modifications represent, as a
+whole, an original work of authorship.
+
+"License" means the terms and conditions for use, reproduction, and distribution
+as defined by Sections 1 through 16 of this document.
+
+"Licensor" means the copyright owner or entity authorized by the copyright
+owner that is granting the License.
+
+"Software" means the work of authorship, whether in Source Code or object code
+form, made available under the License terms, as indicated by a copyright
+notice that is included in or attached to the work.
+
+"Source Code" means the preferred form of the Software for making modifications,
+including but not limited to software source code, documentation source, and
+configuration files.
+
+"You" (or "Your") means an individual or Legal Entity exercising permissions
+granted by this License.
+
+"Legal Entity" means the union of the acting entity and all other entities that
+control, are controlled by, or are under common control with that entity. For
+the purposes of this definition, "control" means (i) the power, direct or
+indirect, to cause the direction or management of such entity, whether by
+contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the
+outstanding shares, or (iii) beneficial ownership of such entity.
+
+================================================================================
+Grant of License
+================================================================================
+
+1. Subject to the terms and conditions of this License, Licensor hereby grants
+   You a worldwide, royalty-free, non-exclusive, non-sublicensable license to
+   use, copy, and create Derivative Works of the Software for Your own individual,
+   non-commercial, internal purposes.
+
+2. Subject to the terms and conditions of this License, Licensor hereby grants
+   You a worldwide, royalty-free, non-exclusive, non-sublicensable license to
+   distribute the Software or Derivative Works as part of a larger product or
+   service that adds substantial value, provided that You do not make the
+   functionality of the Software or Derivative Works available to third
+   parties as a service.
+
+3. Subject to the terms and conditions of this License, Licensor hereby grants
+   You a worldwide, royalty-free, non-exclusive, non-sublicensable license to
+   permit persons to whom the Software or Derivative Works are furnished to
+   do the foregoing, subject to the terms of this License.
+
+================================================================================
+Restrictions
+================================================================================
+
+4. You may not:
+   (a) make the functionality of the Software or Derivative Works available to
+       third parties as a service, including without limitation by hosting or
+       providing the Software as a managed service, software-as-a-service,
+       platform-as-a-service, infrastructure-as-a-service, or other cloud
+       service offering;
+   (b) circumvent any technical limitations in the Software or Derivative
+       Works;
+   (c) remove or alter any copyright, patent, trademark, or other proprietary
+       rights notices in the Software or Derivative Works; or
+   (d) use the Software or Derivative Works in any manner that violates
+       applicable laws or regulations.
+
+================================================================================
+Redistribution
+================================================================================
+
+5. You may reproduce and distribute copies of the Software or Derivative Works
+   in any medium, with or without modifications, and in Source Code or object
+   code form, provided that You meet the following conditions:
+   (a) You must give any other recipients of the Software or Derivative Works a
+       copy of this License; and
+   (b) You must cause any modified files to carry prominent notices stating that
+       You changed the files; and
+   (c) You must retain, in the Source Code form of any Derivative Works that
+       You distribute, all copyright, patent, trademark, and attribution
+       notices from the Source Code form of the Software, excluding those
+       notices that do not pertain to any part of the Derivative Works; and
+   (d) If the Software includes a "NOTICE" text file as part of its distribution,
+       then any Derivative Works that You distribute must include a readable
+       copy of the attribution notices contained within such NOTICE file,
+       excluding those notices that do not pertain to any part of the Derivative
+       Works, in at least one of the following places: within a NOTICE text
+       file distributed as part of the Derivative Works; within the Source Code
+       or documentation, if provided along with the Derivative Works; or, within
+       a display generated by the Derivative Works, if and wherever such
+       third-party notices normally appear.
+
+================================================================================
+Trademarks
+================================================================================
+
+6. This License does not grant permission to use the trade names, trademarks,
+   service marks, or product names of the Licensor, except as required for
+   reasonable and customary use in describing the origin of the Software and
+   reproducing the content of the NOTICE file.
+
+================================================================================
+Disclaimer of Warranty
+================================================================================
+
+7. Unless required by applicable law or agreed to in writing, Licensor provides
+   the Software (and each Contributor provides its Contributions) on an "AS IS"
+   BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+   implied, including, without limitation, any warranties or conditions of
+   TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR
+   PURPOSE. You are solely responsible for determining the appropriateness of
+   using or redistributing the Software and assume any risks associated with
+   Your exercise of permissions under this License.
+
+================================================================================
+Limitation of Liability
+================================================================================
+
+8. In no event and under no legal theory, whether in tort (including
+   negligence), contract, or otherwise, unless required by applicable law (such
+   as deliberate and grossly negligent acts) or agreed to in writing, shall any
+   Contributor be liable to You for damages, including any direct, indirect,
+   special, incidental, or consequential damages of any character arising as a
+   result of this License or out of the use or inability to use the Software
+   (including but not limited to damages for loss of goodwill, work stoppage,
+   computer failure or malfunction, or any and all other commercial damages or
+   losses), even if such Contributor has been advised of the possibility of such
+   damages.
+
+================================================================================
+Accepting Warranty or Additional Liability
+================================================================================
+
+9. While redistributing the Software or Derivative Works, You may choose to
+   offer, and charge a fee for, acceptance of support, warranty, indemnity, or
+   other liability obligations and/or rights consistent with this License.
+   However, in accepting such obligations, You may act only on Your own behalf
+   and on Your sole responsibility, not on behalf of any other Contributor,
+   and only if You agree to indemnify, defend, and hold each Contributor
+   harmless for any liability incurred by, or claims asserted against, such
+   Contributor by reason of your accepting any such warranty or additional
+   liability.
+
+================================================================================
+Termination
+================================================================================
+
+10. This License and the rights granted hereunder will terminate automatically
+    if You fail to comply with any term of this License. However, if You
+    become compliant, then the rights granted under this License from a
+    particular copyright holder are reinstated (a) provisionally, unless and
+    until such copyright holder explicitly and finally terminates Your license,
+    or (b) on an ongoing basis, if such copyright holder fails to notify You of
+    the non-compliance within 60 days after You become compliant. Moreover,
+    Your rights under this License will be terminated if You institute
+    patent litigation against any entity (including a cross-claim or
+    counterclaim in a lawsuit) alleging that the Software or a Derivative
+    Work constitutes direct or contributory patent infringement.
+
+================================================================================
+Miscellaneous
+================================================================================
+
+11. This License represents the complete agreement concerning the subject
+    matter hereof. If any provision of this License is held to be unenforceable,
+    such provision shall be reformed only to the extent necessary to make it
+    enforceable.
+
+12. Any law or regulation which provides that the language of a contract shall
+    be construed against the drafter shall not apply to this License.
+
+13. This License is governed by the laws of the State of California, United
+    States of America, excluding its conflict of law provisions. The parties
+    consent to the exclusive jurisdiction and venue of the federal courts in
+    the Northern District of California for any disputes arising under this
+    License.
+
+14. This License is not a public license and does not grant any rights to the
+    public. Only the Licensees identified in the preamble ("You") are granted
+    rights under this License.
+
+15. The Software is not intended for use in the operation of nuclear facilities,
+    aircraft navigation or communication systems, air traffic control systems,
+    or any other systems where the failure of the Software could lead to death,
+    personal injury, or severe physical or environmental damage. You assume all
+    risk for any such use.
+
+16. The Licensor reserves the right to modify this License at any time. Any
+    modified License will be published at https://www.elastic.co/elastic-license.
+    Your continued use of the Software after such modification constitutes
+    acceptance of the modified License.
