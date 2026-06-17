@@ -224,7 +224,7 @@ async def change_role(
 
     old_role = user.role.value if hasattr(user.role, "value") else str(user.role)
 
-    await prisma.user.update(
+    updated = await prisma.user.update(
         where={"id": str(user_id)},
         data={"role": new_role},
     )
@@ -234,7 +234,6 @@ async def change_role(
         admin_id, str(user_id), old_role, new_role,
     )
 
-    updated = await prisma.user.find_unique(where={"id": str(user_id)})
     return _user_to_summary(updated) if updated else {}
 
 
