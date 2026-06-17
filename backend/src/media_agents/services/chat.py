@@ -185,7 +185,6 @@ def _infer_result_type(message: str, urls: list[str]) -> str:
         return "model_3d"
     if any(msg.startswith(p) for p in ("/vision ", "/analyze-video ")):
         return "text"
-    # Fallback: if URLs arrived but the command wasn't recognized, assume image.
     if urls:
         return "image"
     return "text"
