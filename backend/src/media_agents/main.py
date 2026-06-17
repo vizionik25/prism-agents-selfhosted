@@ -96,11 +96,3 @@ app.include_router(admin_router)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
-
-
-@app.get("/debug/sentry")
-async def trigger_sentry_error():
-    """Verification endpoint — raises to confirm Sentry is capturing exceptions."""
-    raise RuntimeError(
-        "Sentry backend integration test — delete this route once verified"
-    )
