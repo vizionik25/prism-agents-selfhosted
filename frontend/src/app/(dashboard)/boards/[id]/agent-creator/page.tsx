@@ -373,6 +373,8 @@ const TEMPLATES: Template[] = [
   },
 ]
 
+const TEMPLATES_BY_CAPABILITY = new Map(TEMPLATES.filter((t) => t.capability).map((t) => [t.capability, t]))
+
 const CATEGORIES = ["All", "Media", "Audio", "3D", "AI", "Creative", "Training", "Custom"] as const
 type Category = (typeof CATEGORIES)[number]
 
@@ -1849,7 +1851,7 @@ function TeamTemplateCard(props: {
   const { template, busy, onUse, onCustomize } = props
   const memberCount = template.capabilities.length + (template.agent_ids?.length ?? 0)
   const previewCaps = template.capabilities
-    .map((c) => TEMPLATES.find((t) => t.capability === c))
+    .map((c) => TEMPLATES_BY_CAPABILITY.get(c))
     .filter((t): t is Template => Boolean(t))
     .slice(0, 6)
 
@@ -1957,7 +1959,7 @@ function TeamCard(props: {
   const totalMembers = capCount + agentCount
 
   const capabilityChips = (team.members?.capabilities ?? [])
-    .map((c) => TEMPLATES.find((t) => t.capability === c))
+    .map((c) => TEMPLATES_BY_CAPABILITY.get(c))
     .filter((t): t is Template => Boolean(t))
 
   const agentChips = (team.members?.agent_ids ?? [])
