@@ -10,7 +10,7 @@ the fal.ai path (no new API keys). fal.ai's older `fal-ai/openrouter/chat/comple
 no longer resolves — the current id is under the `openrouter/` namespace.
 
 The adapter calls `fal_client.run_async(...)` and returns a single full
-`ModelResponse`, so `agent.run()` is the appropriate call pattern. fal.ai
+`ModelResponse`, so `the agent run method` is the appropriate call pattern. fal.ai
 itself supports streaming (`fal_client.stream_async`); we just don't use it
 here. The user-visible SSE stream is driven by the orchestrator chunking
 its output, not by token-level LLM streaming.
@@ -41,7 +41,7 @@ _FAL_CHAT_ENDPOINT = "openrouter/router/openai/v1/chat/completions"
 _DEFAULT_MODEL = "openai/gpt-4o"
 
 # Task-local holder for attachments during an agent run.
-# Set by the orchestrator before calling agent.run(), cleared after.
+# Set by the orchestrator before calling the agent run method, cleared after.
 _current_attachments: contextvars.ContextVar[list[dict[str, Any]] | None] = contextvars.ContextVar(
     "current_attachments", default=None
 )
