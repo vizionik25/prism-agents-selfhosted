@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 
 from media_agents.auth.github import (
@@ -171,10 +172,11 @@ async def register(data: UserRegister):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username must be at least 3 characters.",
         )
-    if len(data.password) < 6:
+    password = data.password
+    if len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"[a-z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be at least 6 characters.",
+            detail="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
         )
         
     # Check uniqueness
