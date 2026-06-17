@@ -137,8 +137,8 @@ async def research(ctx: RunContext[OrchestratorDeps], query: str) -> str:
 
 # --- Team run synthesizer ---------------------------------------------------
 #
-# Runs AFTER a TeamDagExecutor completes. Takes the per-node results and
-# produces a single coherent message for the user. No tools; pure text.
+# Runs after the team execution DAG completes. Takes the per-node results and
+# produces a single coherent message for the user. Pure text without tools.
 
 synthesizer_agent: Agent[None, str] = Agent(
     fal_chat_model,
