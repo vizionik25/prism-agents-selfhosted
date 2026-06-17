@@ -50,8 +50,8 @@ SPECIALIST_REGISTRY: dict[str, Agent[OrchestratorDeps, str]] = {
     "speech_to_speech": speech_to_speech_agent,
     "training": training_agent,
     "structured_output": structured_output_agent,
-    # Back-compat aliases for pre-existing agents saved before the capability
-    # rename (Image Generator used "image", Video Creator used "video").
+    # Back-compat aliases for pre-existing agents saved before the capability  # noqa: ERA001
+    # rename (Image Generator used "image", Video Creator used "video").  # noqa: ERA001
     "image": text_to_image_agent,
     "video": text_to_video_agent,
 }

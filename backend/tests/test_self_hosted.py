@@ -1,3 +1,4 @@
+from unittest.mock import patch
 import pytest
 import datetime
 from jose import jwt
@@ -42,12 +43,15 @@ def test_password_hashing():
     assert hashed != pwd
     assert verify_password(pwd, hashed) is True
     assert verify_password("wrong-pwd", hashed) is False
-    assert verify_password(pwd, "invalid-hash-that-will-cause-bcrypt-exception") is False
+    assert (
+        verify_password(pwd, "invalid-hash-that-will-cause-bcrypt-exception") is False
+    )
 
 
 def test_credits_bypass_self_hosted(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SELF_HOSTED", "true")
     import media_agents.services.credits as credits_module
+
     monkeypatch.setattr(credits_module, "SELF_HOSTED", True)
 
     user = {"subscriptionCredits": 0, "packCredits": 0}
@@ -58,6 +62,7 @@ def test_credits_bypass_self_hosted(monkeypatch: pytest.MonkeyPatch):
 def test_license_verification_missing_key(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("PRISM_LICENSE_KEY", "")
     import media_agents.services.license as license_module
+
     monkeypatch.setattr(license_module, "PRISM_LICENSE_KEY", "")
 
     assert LicenseService.get_license_claims() is None
@@ -79,6 +84,7 @@ def test_license_verification_valid_key(monkeypatch: pytest.MonkeyPatch):
 
     monkeypatch.setenv("PRISM_LICENSE_KEY", token)
     import media_agents.services.license as license_module
+
     monkeypatch.setattr(license_module, "PRISM_LICENSE_KEY", token)
 
     claims = LicenseService.get_license_claims()
@@ -86,3 +92,17 @@ def test_license_verification_valid_key(monkeypatch: pytest.MonkeyPatch):
     assert claims["tier"] == "ENTERPRISE"
     assert claims["organization"] == "Test Org"
     assert LicenseService.has_enterprise_license() is True
+
+
+def test_verify_password_exception():
+    with patch(
+        "media_agents.auth.pwd_utils.bcrypt.checkpw",
+        side_effect=Exception("Mocked exception"),
+    ):
+        assert verify_password("pwd", "hash") is False
+
+
+def test_verify_password_none_input():
+    assert verify_password(None, "hash") is False
+    assert verify_password("pwd", None) is False
+    assert verify_password(None, None) is False

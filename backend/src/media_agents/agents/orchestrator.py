@@ -350,7 +350,6 @@ class AgentOrchestrator:
         if self._team_config is not None:
             yield "STATUS:processing"
 
-            # Fetch current balance for plan validation.
             user = await user_service.get_user_by_id(self.user_id)
             user_balance = (
                 (user.get("subscriptionCredits") or 0) + (user.get("packCredits") or 0)
