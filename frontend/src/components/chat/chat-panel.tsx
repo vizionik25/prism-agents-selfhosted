@@ -161,13 +161,14 @@ function PlanCard({ plan }: { plan: TeamPlan }) {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-3 py-2 font-mono uppercase tracking-wider text-muted-foreground hover:bg-accent"
+        aria-controls="plan-details"
+        className="flex w-full items-center justify-between px-3 py-2 font-mono uppercase tracking-wider text-muted-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span>Plan — {plan.summary}</span>
         <span>{plan.estimated_credits} cr · {plan.nodes.length} steps</span>
       </button>
       {open && (
-        <ul className="space-y-1 border-t px-3 py-2">
+        <ul id="plan-details" className="space-y-1 border-t px-3 py-2">
           {plan.nodes.map((n) => (
             <li key={n.id} className="font-mono">
               <span className="text-muted-foreground">{n.id}</span>{" "}
@@ -783,7 +784,7 @@ export function ChatPanel({
               <button
                 type="button"
                 onClick={() => handleAttachType("image")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-purple-500 hover:bg-purple-500/10 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-purple-500 hover:bg-purple-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Image className="w-3.5 h-3.5" />
                 Image
@@ -791,7 +792,7 @@ export function ChatPanel({
               <button
                 type="button"
                 onClick={() => handleAttachType("video")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-pink-500 hover:bg-pink-500/10 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-pink-500 hover:bg-pink-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Video className="w-3.5 h-3.5" />
                 Video
@@ -799,7 +800,7 @@ export function ChatPanel({
               <button
                 type="button"
                 onClick={() => handleAttachType("document")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-cyan-500 hover:bg-cyan-500/10 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-cyan-500 hover:bg-cyan-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <FileText className="w-3.5 h-3.5" />
                 Document
@@ -895,7 +896,7 @@ export function ChatPanel({
                     <button
                       type="button"
                       onClick={() => removeAttachment(att.id)}
-                      className="ml-1 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                      className="ml-1 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={`Remove ${att.filename}`}
                     >
                       <X className="w-3 h-3" />
