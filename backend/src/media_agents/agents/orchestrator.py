@@ -25,7 +25,11 @@ from pydantic_ai import Agent, RunContext
 from media_agents.agents.agent_maker import create_agent_from_description
 from media_agents.agents.client import fal_client
 from media_agents.agents.deps import OrchestratorDeps
-from media_agents.agents.fal_model import fal_chat_model, reset_current_attachments, set_current_attachments
+from media_agents.agents.fal_model import (
+    fal_chat_model,
+    reset_current_attachments,
+    set_current_attachments,
+)
 from media_agents.agents.research import research_task
 from media_agents.agents.specialist import SPECIALIST_REGISTRY
 from media_agents.agents.team_dag_executor import NodeResult, TeamDagExecutor
@@ -336,7 +340,10 @@ class AgentOrchestrator:
         return None
 
     async def stream(
-        self, message: str, history: list[dict[str, str]], attachments: list[dict] | None = None
+        self,
+        message: str,
+        history: list[dict[str, str]],
+        attachments: list[dict] | None = None,
     ) -> AsyncGenerator[str, None]:
         command = self._parse_command(message)
 
@@ -388,7 +395,11 @@ class AgentOrchestrator:
                 system_prompt="",
                 max_credits=self._team_config.max_credits,
                 attachments=[
-                    {"filename": a["filename"], "mime_type": a["mime_type"], "data_url": a["data_url"]}
+                    {
+                        "filename": a["filename"],
+                        "mime_type": a["mime_type"],
+                        "data_url": a["data_url"],
+                    }
                     for a in (attachments or [])
                 ],
             )
@@ -454,7 +465,11 @@ class AgentOrchestrator:
             if self.custom_agent
             else None,
             attachments=[
-                {"filename": a["filename"], "mime_type": a["mime_type"], "data_url": a["data_url"]}
+                {
+                    "filename": a["filename"],
+                    "mime_type": a["mime_type"],
+                    "data_url": a["data_url"],
+                }
                 for a in (attachments or [])
             ],
         )

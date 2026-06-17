@@ -14,7 +14,10 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from media_agents.agents.deps import OrchestratorDeps
-from media_agents.agents.fal_model import reset_current_attachments, set_current_attachments
+from media_agents.agents.fal_model import (
+    reset_current_attachments,
+    set_current_attachments,
+)
 from media_agents.agents.specialist import SPECIALIST_REGISTRY
 from media_agents.agents.team_planner import PlanNode, TeamPlan
 from media_agents.services import credits as credits_service

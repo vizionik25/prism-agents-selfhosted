@@ -48,6 +48,7 @@ def test_validate_rejects_unsupported_mime():
 
 def test_validate_rejects_oversized_image(monkeypatch):
     from media_agents.services.chat import _SIZE_LIMITS
+
     monkeypatch.setitem(_SIZE_LIMITS, "image", 100)
 
     # 150 bytes image — over the 100 bytes limit
@@ -68,9 +69,7 @@ def test_validate_accepts_mime_with_parameters():
 def test_validate_rejects_invalid_base64():
     # Case 1: Missing comma separator
     att_no_comma = ChatAttachment(
-        filename="test.png",
-        mime_type="image/png",
-        data_url="data:image/png;base64XYZ"
+        filename="test.png", mime_type="image/png", data_url="data:image/png;base64XYZ"
     )
     with pytest.raises(HTTPException) as excinfo:
         validate_attachments([att_no_comma])
@@ -81,7 +80,7 @@ def test_validate_rejects_invalid_base64():
     att_invalid_b64 = ChatAttachment(
         filename="test.png",
         mime_type="image/png",
-        data_url="data:image/png;base64,invalid_b64!!!"
+        data_url="data:image/png;base64,invalid_b64!!!",
     )
     with pytest.raises(HTTPException) as excinfo:
         validate_attachments([att_invalid_b64])
@@ -92,6 +91,7 @@ def test_validate_rejects_invalid_base64():
 def test_validate_early_size_check_with_padding(monkeypatch):
     # Set limit to 2 bytes
     from media_agents.services.chat import _SIZE_LIMITS
+
     monkeypatch.setitem(_SIZE_LIMITS, "image", 2)
 
     # 3 bytes image - exceeds 2 bytes limit
