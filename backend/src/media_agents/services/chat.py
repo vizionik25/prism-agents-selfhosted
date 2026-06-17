@@ -310,16 +310,16 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 yield {"event": "plan", "data": chunk[5:]}
             elif chunk.startswith("TEXT:"):
                 payload = chunk[5:]
-                # Node-scoped text (``n1:...``) gets its scope stripped before
-                # accumulating into ``full_response`` so the persisted
-                # ``metadata["text"]`` stays clean. The full scoped payload is
+                # Node-scoped text gets its scope stripped before
+                # accumulating into the full response so the persisted
+                # metadata stays clean. The full scoped payload is
                 # still forwarded to the client for per-lane rendering.
                 _, text_content = _strip_node_scope(payload)
                 full_response += text_content
                 yield {"event": "message", "data": payload}
             elif chunk.startswith("URL:"):
                 payload = chunk[4:]
-                # Strip node scope before appending so ``result_url`` and
+                # Strip node scope before appending so the result URL and
                 # variant rows store clean URLs. Forward the scoped payload
                 # on the wire so the UI can route URLs into the right lane.
                 _, url_clean = _strip_node_scope(payload)
@@ -332,9 +332,8 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 yield {"event": "credits", "data": chunk[8:]}
             elif chunk.startswith("STATUS:"):
                 status_str = chunk[7:]
-                # Node-scoped status (e.g. ``n1:running``) MUST NOT update the
-                # Generation row — the Prisma ``GenerationStatus`` enum only
-                # accepts run-level values (PENDING/PROCESSING/COMPLETED/FAILED).
+                # Node-scoped status MUST NOT update the Generation row because
+                # the database enum only accepts run-level values.
                 # Only persist when the payload has no node scope.
                 node_scope, _ = _strip_node_scope(status_str)
                 if node_scope is None:
