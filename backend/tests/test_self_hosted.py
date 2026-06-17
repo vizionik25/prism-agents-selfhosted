@@ -1,6 +1,5 @@
 import pytest
 import datetime
-from fastapi import HTTPException
 from jose import jwt
 
 from media_agents.services.credits import check_credits
