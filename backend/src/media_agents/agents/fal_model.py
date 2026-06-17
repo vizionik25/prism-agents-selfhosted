@@ -41,13 +41,15 @@ _FAL_CHAT_ENDPOINT = "openrouter/router/openai/v1/chat/completions"
 _DEFAULT_MODEL = "openai/gpt-4o"
 
 # Task-local holder for attachments during an agent run.
-# Set by the orchestrator before calling the agent run method, cleared after.
-_current_attachments: contextvars.ContextVar[list[dict[str, Any]] | None] = contextvars.ContextVar(
-    "current_attachments", default=None
+# Set by the orchestrator before calling agent.run(), cleared after.
+_current_attachments: contextvars.ContextVar[list[dict[str, Any]] | None] = (
+    contextvars.ContextVar("current_attachments", default=None)
 )
 
 
-def set_current_attachments(attachments: list[dict[str, Any]] | None) -> contextvars.Token:
+def set_current_attachments(
+    attachments: list[dict[str, Any]] | None,
+) -> contextvars.Token:
     """Set task-local attachments for the current agent run."""
     return _current_attachments.set(attachments)
 
@@ -144,17 +146,19 @@ async def _augment_with_attachments(
     for att in attachments:
         mime = att["mime_type"]
         if mime.startswith("image/"):
-            image_parts.append({
-                "type": "image_url",
-                "image_url": {"url": att["data_url"]},
-            })
-        elif mime.startswith("video/"):
-            doc_blocks.append(
-                f"[Attached Video: {att['filename']}]\n[End video]"
+            image_parts.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": att["data_url"]},
+                }
             )
+        elif mime.startswith("video/"):
+            doc_blocks.append(f"[Attached Video: {att['filename']}]\n[End video]")
         else:
             # Document — extract text
-            extracted = await asyncio.to_thread(extract_text, att["data_url"], mime, att["filename"])
+            extracted = await asyncio.to_thread(
+                extract_text, att["data_url"], mime, att["filename"]
+            )
             doc_blocks.append(
                 f"[Document: {att['filename']}]\n{extracted}\n[End document]"
             )
@@ -195,7 +199,10 @@ async def _fal_chat_function(
     info: AgentInfo,
 ) -> ModelResponse:
     return await _run_fal_chat(
-        messages, info, model=_DEFAULT_MODEL, temperature=None,
+        messages,
+        info,
+        model=_DEFAULT_MODEL,
+        temperature=None,
         attachments=get_current_attachments(),
     )
 
@@ -252,12 +259,14 @@ def make_fal_chat_model(
 
     async def _fn(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         return await _run_fal_chat(
-            messages, info, model=chosen_model, temperature=temperature,
+            messages,
+            info,
+            model=chosen_model,
+            temperature=temperature,
             attachments=get_current_attachments(),
         )
 
     return FunctionModel(_fn)
 
 
-# Module-level singleton — reuse the same FunctionModel for every default agent.
 fal_chat_model = FunctionModel(_fal_chat_function)
