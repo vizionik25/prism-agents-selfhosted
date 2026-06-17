@@ -1,0 +1,27 @@
+const perf_hooks = require('perf_hooks');
+
+const agents = Array.from({ length: 1000 }, (_, i) => ({ id: `agent_${i}`, name: `Agent ${i}` }));
+const agent_ids = Array.from({ length: 100 }, (_, i) => `agent_${Math.floor(Math.random() * 1000)}`);
+const team = { members: { agent_ids } };
+
+// Baseline
+const startBaseline = perf_hooks.performance.now();
+for (let i = 0; i < 1000; i++) { // Render 1000 TeamCards
+  const agentChipsBaseline = (team.members?.agent_ids ?? [])
+    .map((id) => agents.find((a) => a.id === id))
+    .filter((a) => Boolean(a));
+}
+const endBaseline = perf_hooks.performance.now();
+
+// Optimized using Map
+const startOptimized = perf_hooks.performance.now();
+const agentMap = new Map(agents.map(a => [a.id, a]));
+for (let i = 0; i < 1000; i++) {
+  const agentChipsOptimized = (team.members?.agent_ids ?? [])
+    .map((id) => agentMap.get(id))
+    .filter((a) => Boolean(a));
+}
+const endOptimized = perf_hooks.performance.now();
+
+console.log(`Baseline: ${endBaseline - startBaseline} ms`);
+console.log(`Optimized: ${endOptimized - startOptimized} ms`);
