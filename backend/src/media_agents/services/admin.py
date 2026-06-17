@@ -13,7 +13,7 @@ from typing import Optional
 from fastapi import HTTPException
 
 from media_agents.prisma import prisma
-from media_agents.services.credits import reset_subscription_credits, add_pack_credits
+from media_agents.services.credits import reset_subscription_credits
 
 logger = logging.getLogger(__name__)
 
@@ -155,18 +155,21 @@ async def change_tier(
 
     old_tier = user.subscriptionTier.value if hasattr(user.subscriptionTier, "value") else str(user.subscriptionTier)
 
+    # Update user and reset credits
     await prisma.user.update(
         where={"id": str(user_id)},
         data={"subscriptionTier": new_tier},
     )
-    await reset_subscription_credits(user_id, known_tier=new_tier)
+
+    # reset_subscription_credits performs an update and returns the user dict
+    updated = await reset_subscription_credits(user_id, known_tier=new_tier)
 
     logger.info(
         "ADMIN_ACTION: %s changed tier for %s: %s -> %s",
         admin_id, str(user_id), old_tier, new_tier,
     )
 
-    updated = await prisma.user.find_unique(where={"id": str(user_id)})
+    return updated if updated else {}
     return _user_to_summary(updated) if updated else {}
 
 
@@ -183,8 +186,12 @@ async def grant_credits(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
+    update_data = {}
     if subscription_credits is not None:
-        await prisma.user.update(
+        update_data["subscriptionCredits"] = subscription_credits
+    updated = user
+    if subscription_credits is not None:
+        updated = await prisma.user.update(
             where={"id": str(user_id)},
             data={"subscriptionCredits": subscription_credits},
         )
@@ -194,13 +201,21 @@ async def grant_credits(
         )
 
     if pack_credits is not None and pack_credits > 0:
-        await add_pack_credits(user_id, pack_credits)
+        update_data["packCredits"] = {"increment": pack_credits}
+        updated = await add_pack_credits(user_id, pack_credits)
         logger.info(
             "ADMIN_ACTION: %s added %d pack_credits to %s",
             admin_id, pack_credits, str(user_id),
         )
 
-    updated = await prisma.user.find_unique(where={"id": str(user_id)})
+    if update_data:
+        updated = await prisma.user.update(
+            where={"id": str(user_id)},
+            data=update_data,
+        )
+        return _user_to_summary(updated) if updated else {}
+
+    return _user_to_summary(user)
     return _user_to_summary(updated) if updated else {}
 
 
@@ -224,7 +239,7 @@ async def change_role(
 
     old_role = user.role.value if hasattr(user.role, "value") else str(user.role)
 
-    await prisma.user.update(
+    updated = await prisma.user.update(
         where={"id": str(user_id)},
         data={"role": new_role},
     )
@@ -234,7 +249,6 @@ async def change_role(
         admin_id, str(user_id), old_role, new_role,
     )
 
-    updated = await prisma.user.find_unique(where={"id": str(user_id)})
     return _user_to_summary(updated) if updated else {}
 
 

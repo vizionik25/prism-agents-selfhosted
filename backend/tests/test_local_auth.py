@@ -11,6 +11,15 @@ def client():
     c = TestClient(app)
     yield c
     env.ENABLE_LOCAL_AUTH = old_val
+import media_agents.env as env  # noqa: E402
+env.ENABLE_LOCAL_AUTH = True
+import media_agents.auth.router as auth_router  # noqa: E402
+auth_router.ENABLE_LOCAL_AUTH = True
+
+from media_agents.main import app  # noqa: E402
+from media_agents.services import user as user_service  # noqa: E402
+
+client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def mock_prisma(monkeypatch):
@@ -27,7 +36,7 @@ def mock_prisma(monkeypatch):
     monkeypatch.setattr(user_service, "create_local_user", mock_create_local_user)
 
     # Mock analytics to avoid sending events during tests
-    from media_agents.analytics import analytics
+    from media_agents.analytics import analytics  # noqa: E402
     monkeypatch.setattr(analytics, "identify", lambda *args, **kwargs: None)
 
 def test_register_weak_password(client, monkeypatch):
