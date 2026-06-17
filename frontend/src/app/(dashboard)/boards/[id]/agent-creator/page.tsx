@@ -1962,8 +1962,9 @@ function TeamCard(props: {
     .map((c) => TEMPLATES_BY_CAPABILITY.get(c))
     .filter((t): t is Template => Boolean(t))
 
+  const agentsById = new Map(agents.map((a) => [a.id, a]))
   const agentChips = (team.members?.agent_ids ?? [])
-    .map((id) => agents.find((a) => a.id === id))
+    .map((id) => agentsById.get(id))
     .filter((a): a is Agent => Boolean(a))
 
   const routing = ROUTING_STRATEGIES.find(
