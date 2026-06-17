@@ -43,6 +43,7 @@ def test_password_hashing():
     assert hashed != pwd
     assert verify_password(pwd, hashed) is True
     assert verify_password("wrong-pwd", hashed) is False
+    assert verify_password(pwd, "invalid-hash-that-will-cause-bcrypt-exception") is False
 
 
 def test_credits_bypass_self_hosted(monkeypatch: pytest.MonkeyPatch):
