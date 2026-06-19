@@ -25,6 +25,15 @@ import os
 logger = logging.getLogger(__name__)
 
 
+def process_user(user_dict: dict) -> None:
+    payload = full_identify_payload(user_dict)
+    analytics.identify(
+        user_id=user_dict["id"],
+        traits=payload,
+        email=payload.get("email"),
+    )
+
+
 async def sync_all() -> int:
     await prisma.connect()
     try:
@@ -44,14 +53,10 @@ async def sync_all() -> int:
             if not users:
                 break
 
-            for user in users:
-                payload = full_identify_payload(user.model_dump())
-                analytics.identify(
-                    user_id=user.id,
-                    traits=payload,
-                    email=payload.get("email"),
-                )
-                synced += 1
+            await asyncio.gather(
+                *(asyncio.to_thread(process_user, user.model_dump()) for user in users)
+            )
+            synced += len(users)
 
             # Update cursor for the next iteration
             cursor = users[-1].id
