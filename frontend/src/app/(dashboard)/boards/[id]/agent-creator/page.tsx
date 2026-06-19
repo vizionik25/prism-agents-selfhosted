@@ -1964,9 +1964,7 @@ function TeamCard(props: {
     .map((c) => TEMPLATES_BY_CAPABILITY.get(c))
     .filter((t): t is Template => Boolean(t))
 
-  const agentsById = new Map(agents.map((a) => [a.id, a]))
   const agentChips = (team.members?.agent_ids ?? [])
-    .map((id) => agentsById.get(id))
     .map((id) => agentMap.get(id))
     .filter((a): a is Agent => Boolean(a))
 
