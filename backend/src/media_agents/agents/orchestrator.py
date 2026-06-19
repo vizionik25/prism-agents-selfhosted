@@ -443,7 +443,7 @@ class AgentOrchestrator:
             yield "STATUS:completed"
             return
 
-        # Free-form input — delegate to specialist if active capability matches registry.
+        # Free-form input — delegate to specialist based on active capability in registry.
         yield "STATUS:processing"
         active_cap = (
             self.custom_agent.capabilities[0]
