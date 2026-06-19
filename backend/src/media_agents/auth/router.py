@@ -15,7 +15,7 @@ from media_agents.analytics import analytics
 from media_agents.analytics.events import USER_SIGNED_IN, USER_SIGNED_UP
 from media_agents.analytics.traits import full_identify_payload, signin_traits
 from pydantic import BaseModel
-from media_agents.env import ENABLE_LOCAL_AUTH, ENABLE_GITHUB_AUTH
+from media_agents import env
 from media_agents.auth.pwd_utils import get_password_hash, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -48,7 +48,7 @@ class UserLogin(BaseModel):
 
 @router.get("/github")
 async def github_login():
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
@@ -63,7 +63,7 @@ async def github_callback(
     code: str = Query(...),
     state: str = Query(...),
 ):
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
@@ -158,27 +158,34 @@ async def github_callback(
 
 @router.post("/register", response_model=TokenResponse)
 async def register(data: UserRegister):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",
         )
-    
+
     username = data.username.strip()
     email = data.email.strip().lower()
-    
+
     if len(username) < 3:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username must be at least 3 characters.",
         )
     password = data.password
-    if len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"[a-z]", password) or not re.search(r"\d", password) or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+    # Enforce strong password policy: minimum length and complexity requirements
+    if (
+        len(password) < 8
+        or not re.search(r"[A-Z]", password)
+        or not re.search(r"[a-z]", password)
+        or not re.search(r"\d", password)
+        or not re.search(r"[^A-Za-z0-9]", password)
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
         )
-        
+
     # Check uniqueness
     existing_email = await user_service.get_user_by_email(email)
     if existing_email:
@@ -186,14 +193,14 @@ async def register(data: UserRegister):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email is already registered.",
         )
-        
+
     existing_username = await user_service.get_user_by_username(username)
     if existing_username:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username is already taken.",
         )
-        
+
     # Create user
     password_hash = get_password_hash(data.password)
     user = await user_service.create_local_user(
@@ -201,7 +208,7 @@ async def register(data: UserRegister):
         email=email,
         password_hash=password_hash,
     )
-    
+
     # Analytics identify/capture
     analytics.identify(
         user_id=user["id"],
@@ -214,12 +221,12 @@ async def register(data: UserRegister):
         email=user["email"],
         properties={"signup_source": "local"},
     )
-    
+
     token = create_access_token(user["id"])
     role_val = user.get("role", "USER")
     if hasattr(role_val, "value"):
         role_val = role_val.value
-        
+
     return TokenResponse(
         access_token=token,
         user=UserResponse(
@@ -234,30 +241,30 @@ async def register(data: UserRegister):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: UserLogin):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",
         )
-        
+
     login_str = data.email_or_username.strip()
     if "@" in login_str:
         user = await user_service.get_user_by_email(login_str.lower())
     else:
         user = await user_service.get_user_by_username(login_str)
-        
+
     if user is None or not user.get("passwordHash"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email/username or password.",
         )
-        
+
     if not verify_password(data.password, user["passwordHash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email/username or password.",
         )
-        
+
     analytics.identify(
         user_id=user["id"],
         traits=signin_traits(user),
@@ -269,12 +276,12 @@ async def login(data: UserLogin):
         email=user["email"],
         properties={"signup_source": "local"},
     )
-    
+
     token = create_access_token(user["id"])
     role_val = user.get("role", "USER")
     if hasattr(role_val, "value"):
         role_val = role_val.value
-        
+
     return TokenResponse(
         access_token=token,
         user=UserResponse(
