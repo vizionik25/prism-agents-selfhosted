@@ -1,7 +1,7 @@
 # src/media_agents/agents/specialist/image_to_3d.py
 from __future__ import annotations
 from pydantic_ai import Agent, RunContext
-from media_agents.agents.client import fal_client
+from media_agents.agents.client import fal_client, ImageTo3DRequest
 from media_agents.agents.fal_model import fal_chat_model
 from media_agents.agents.deps import OrchestratorDeps
 from media_agents.agents.templates import AgentTemplate
@@ -44,9 +44,13 @@ async def generate_3d_from_images(
 ) -> str:
     """Generate a 3D model from images. Returns model URL and thumbnail URL."""
     model = ctx.deps.model or "fal-ai/meshy/v5/multi-image-to-3d"
-    urls = await fal_client.generate_3d_from_images(
-        image_url, left_image_url, back_image_url, right_image_url, model=model
+    request = ImageTo3DRequest(
+        image_url=image_url,
+        left_image_url=left_image_url,
+        back_image_url=back_image_url,
+        right_image_url=right_image_url,
     )
+    urls = await fal_client.generate_3d_from_images(request, model=model)
     if urls["model_url"]:
         ctx.deps.asset_urls.append(urls["model_url"])
     if urls["thumbnail_url"]:
