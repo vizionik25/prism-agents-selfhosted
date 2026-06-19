@@ -47,10 +47,8 @@ class UserLogin(BaseModel):
 
 
 @router.get("/github")
-async def github_login():
-    if not env.ENABLE_GITHUB_AUTH:
 async def github_login(response: Response):
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
