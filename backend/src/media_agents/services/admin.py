@@ -235,6 +235,7 @@ async def grant_credits(
         )
         return _user_to_summary(updated) if updated else {}
 
+    return _user_to_summary(updated) if updated else {}
     return _user_to_summary(user)
 
 
