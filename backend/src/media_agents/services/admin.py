@@ -186,7 +186,6 @@ async def change_tier(
         new_tier,
     )
 
-    return updated if updated else {}
     return _user_to_summary(updated) if updated else {}
 
 
@@ -237,7 +236,6 @@ async def grant_credits(
         return _user_to_summary(updated) if updated else {}
 
     return _user_to_summary(user)
-    return _user_to_summary(updated) if updated else {}
 
 
 async def change_role(
