@@ -118,9 +118,8 @@ class TeamDagExecutor:
 
         cmd_type = credits_service.command_for_capability(node.member)
 
-        # Single atomic region for balance check + deduct + spent_credits
-        # mutation. Serializes concurrent nodes within the same run so we
-        # can't over-deduct when two tasks race past the balance check.
+        # Single atomic region for balance check, deduct, and spent_credits mutation.
+        # This serializes concurrent nodes within the same run so we can't over-deduct.
         async with self._credit_lock:
             if self._initial_balance is None:
                 user = await user_service.get_user_by_id(self.deps.user_id)

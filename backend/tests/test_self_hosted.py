@@ -1,3 +1,4 @@
+from unittest.mock import patch
 import pytest
 import datetime
 from jose import jwt
@@ -91,3 +92,17 @@ def test_license_verification_valid_key(monkeypatch: pytest.MonkeyPatch):
     assert claims["tier"] == "ENTERPRISE"
     assert claims["organization"] == "Test Org"
     assert LicenseService.has_enterprise_license() is True
+
+
+def test_verify_password_exception():
+    with patch(
+        "media_agents.auth.pwd_utils.bcrypt.checkpw",
+        side_effect=Exception("Mocked exception"),
+    ):
+        assert verify_password("pwd", "hash") is False
+
+
+def test_verify_password_none_input():
+    assert verify_password(None, "hash") is False
+    assert verify_password("pwd", None) is False
+    assert verify_password(None, None) is False
