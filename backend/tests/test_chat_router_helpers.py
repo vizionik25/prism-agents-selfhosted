@@ -68,6 +68,8 @@ async def test_chat_router_plan_event_and_scoped_events_forwarded(
     - Strip node-scope from URL/TEXT before persisting, but forward the
       full payload to the client on the wire.
     """
+
+
 @pytest.fixture
 async def _chat_stream_results(monkeypatch: pytest.MonkeyPatch) -> dict:
     from media_agents.services import chat as chat_mod
@@ -357,22 +359,16 @@ async def test_chat_router_endpoint_validate_attachments(monkeypatch):
     bad_att = ChatAttachment(
         filename="test.exe",
         mime_type="application/octet-stream",
-        data_url="data:application/octet-stream;base64,YWJj"
+        data_url="data:application/octet-stream;base64,YWJj",
     )
     req = ChatRequest(
-        board_id=_uuid.uuid4(),
-        message="hi",
-        history=[],
-        attachments=[bad_att]
+        board_id=_uuid.uuid4(), message="hi", history=[], attachments=[bad_att]
     )
 
     # Mock DB ensure helpers called in DEMO_MODE so the test doesn't crash on DB queries
     monkeypatch.setattr("media_agents.routers.chat.DEMO_MODE", False)
 
     with pytest.raises(HTTPException) as excinfo:
-        await chat_stream(
-            request=req,
-            current_user={"id": str(_uuid.uuid4())}
-        )
+        await chat_stream(request=req, current_user={"id": str(_uuid.uuid4())})
     assert excinfo.value.status_code == 400
     assert "Unsupported file type" in excinfo.value.detail

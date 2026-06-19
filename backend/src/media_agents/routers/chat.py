@@ -7,7 +7,11 @@ from sse_starlette.sse import EventSourceResponse
 from media_agents.auth.dependencies import get_current_user
 from media_agents.env import DEMO_MODE
 from media_agents.services import board as board_service
-from media_agents.services.chat import ChatRequest, stream_chat_events, validate_attachments
+from media_agents.services.chat import (
+    ChatRequest,
+    stream_chat_events,
+    validate_attachments,
+)
 
 logger = logging.getLogger(__name__)
 

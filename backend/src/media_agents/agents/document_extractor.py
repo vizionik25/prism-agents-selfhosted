@@ -40,11 +40,11 @@ def _extract_docx(raw: bytes) -> str:
 
     doc = Document(io.BytesIO(raw))
     parts: list[str] = []
-    
+
     for p in doc.paragraphs:
         if p.text.strip():
             parts.append(p.text)
-            
+
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
@@ -52,7 +52,7 @@ def _extract_docx(raw: bytes) -> str:
                     stripped = p.text.strip()
                     if stripped:
                         parts.append(stripped)
-                        
+
     return "\n\n".join(parts)
 
 

@@ -47,14 +47,20 @@ def validate_credits_input(
             detail="At least one of subscription_credits or pack_credits must be provided.",
         )
     if subscription_credits is not None and subscription_credits < 0:
-        raise HTTPException(status_code=400, detail="subscription_credits cannot be negative.")
+        raise HTTPException(
+            status_code=400, detail="subscription_credits cannot be negative."
+        )
     if pack_credits is not None and pack_credits < 0:
         raise HTTPException(status_code=400, detail="pack_credits cannot be negative.")
 
 
 def _user_to_summary(user) -> dict:
     """Convert a Prisma user record to a summary dict for list responses."""
-    tier = user.subscriptionTier.value if hasattr(user.subscriptionTier, "value") else str(user.subscriptionTier)
+    tier = (
+        user.subscriptionTier.value
+        if hasattr(user.subscriptionTier, "value")
+        else str(user.subscriptionTier)
+    )
     role = user.role.value if hasattr(user.role, "value") else str(user.role)
     return {
         "id": user.id,
@@ -72,7 +78,9 @@ def _user_to_detail(user, api_keys=None) -> dict:
     """Convert a Prisma user record to a detail dict."""
     result = _user_to_summary(user)
     result["avatar_url"] = user.avatarUrl
-    result["credits_reset_at"] = user.creditsResetAt.isoformat() if user.creditsResetAt else None
+    result["credits_reset_at"] = (
+        user.creditsResetAt.isoformat() if user.creditsResetAt else None
+    )
     result["stripe_customer_id"] = user.stripeCustomerId
     if api_keys is not None:
         result["api_keys"] = [
@@ -103,10 +111,12 @@ async def list_users(
     conditions = []
     if search:
         conditions.append(
-            {"OR": [
-                {"username": {"contains": search, "mode": "insensitive"}},
-                {"email": {"contains": search, "mode": "insensitive"}},
-            ]}
+            {
+                "OR": [
+                    {"username": {"contains": search, "mode": "insensitive"}},
+                    {"email": {"contains": search, "mode": "insensitive"}},
+                ]
+            }
         )
     if tier:
         validate_tier(tier)
@@ -153,7 +163,11 @@ async def change_tier(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    old_tier = user.subscriptionTier.value if hasattr(user.subscriptionTier, "value") else str(user.subscriptionTier)
+    old_tier = (
+        user.subscriptionTier.value
+        if hasattr(user.subscriptionTier, "value")
+        else str(user.subscriptionTier)
+    )
 
     # Update user and reset credits
     await prisma.user.update(
@@ -166,7 +180,10 @@ async def change_tier(
 
     logger.info(
         "ADMIN_ACTION: %s changed tier for %s: %s -> %s",
-        admin_id, str(user_id), old_tier, new_tier,
+        admin_id,
+        str(user_id),
+        old_tier,
+        new_tier,
     )
 
     return updated if updated else {}
@@ -197,7 +214,9 @@ async def grant_credits(
         )
         logger.info(
             "ADMIN_ACTION: %s set subscription_credits for %s to %d",
-            admin_id, str(user_id), subscription_credits,
+            admin_id,
+            str(user_id),
+            subscription_credits,
         )
 
     if pack_credits is not None and pack_credits > 0:
@@ -205,7 +224,9 @@ async def grant_credits(
         updated = await add_pack_credits(user_id, pack_credits)
         logger.info(
             "ADMIN_ACTION: %s added %d pack_credits to %s",
-            admin_id, pack_credits, str(user_id),
+            admin_id,
+            pack_credits,
+            str(user_id),
         )
 
     if update_data:
@@ -246,7 +267,10 @@ async def change_role(
 
     logger.info(
         "ADMIN_ACTION: %s changed role for %s: %s -> %s",
-        admin_id, str(user_id), old_role, new_role,
+        admin_id,
+        str(user_id),
+        old_role,
+        new_role,
     )
 
     return _user_to_summary(updated) if updated else {}
@@ -273,5 +297,7 @@ async def admin_revoke_api_key(
 
     logger.info(
         "ADMIN_ACTION: %s revoked API key %s for user %s",
-        admin_id, str(key_id), str(user_id),
+        admin_id,
+        str(key_id),
+        str(user_id),
     )
