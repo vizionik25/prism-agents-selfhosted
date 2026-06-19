@@ -173,10 +173,11 @@ export default function LoginPage() {
               <form onSubmit={handleLocalSubmit} className="space-y-4">
                 {authMode === "register" && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Username</label>
+                    <label htmlFor="username" className="text-sm font-medium">Username</label>
                     <div className="relative">
                       <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
+                        id="username"
                         type="text"
                         placeholder="john_doe"
                         className="pl-9"
@@ -189,12 +190,13 @@ export default function LoginPage() {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <label htmlFor="email" className="text-sm font-medium">
                     {authMode === "register" ? "Email Address" : "Email or Username"}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
+                      id="email"
                       type={authMode === "register" ? "email" : "text"}
                       placeholder={authMode === "register" ? "john@example.com" : "john@example.com or john_doe"}
                       className="pl-9"
@@ -206,10 +208,11 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Password</label>
+                  <label htmlFor="password" className="text-sm font-medium">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
+                      id="password"
                       type="password"
                       placeholder="••••••••"
                       className="pl-9"
@@ -222,10 +225,11 @@ export default function LoginPage() {
 
                 {authMode === "register" && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Confirm Password</label>
+                    <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
+                        id="confirmPassword"
                         type="password"
                         placeholder="••••••••"
                         className="pl-9"
