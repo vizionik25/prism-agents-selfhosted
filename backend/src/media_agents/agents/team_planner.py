@@ -85,6 +85,7 @@ def validate_plan(
         )
 
     seen: set[str] = set()
+    all_node_ids: set[str] | None = None
     computed_cost = 0
     for node in plan.nodes:
         if node.id in seen:
@@ -95,7 +96,9 @@ def validate_plan(
             if dep == node.id:
                 raise PlanValidationError(f"self-dependency on {node.id!r}")
             if dep not in seen:
-                if any(n.id == dep for n in plan.nodes):
+                if all_node_ids is None:
+                    all_node_ids = {n.id for n in plan.nodes}
+                if dep in all_node_ids:
                     raise PlanValidationError(
                         f"forward dependency: node {node.id!r} depends on {dep!r} "
                         "which is declared later"

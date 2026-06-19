@@ -38,18 +38,27 @@ class ChatMessage(BaseModel):
 
 ALLOWED_MIME_TYPES = {
     # Images
-    "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
     # Videos
-    "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
     # Documents
-    "application/pdf", "text/plain", "text/markdown",
+    "application/pdf",
+    "text/plain",
+    "text/markdown",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
 
 # Per-type size limits in bytes
 _SIZE_LIMITS = {
-    "image": 20 * 1024 * 1024,     # 20 MB
-    "video": 50 * 1024 * 1024,     # 50 MB
+    "image": 20 * 1024 * 1024,  # 20 MB
+    "video": 50 * 1024 * 1024,  # 50 MB
     "document": 10 * 1024 * 1024,  # 10 MB
 }
 
@@ -139,7 +148,6 @@ class ChatRequest(BaseModel):
     )
     history: list[ChatMessage] = []
     attachments: list[ChatAttachment] = []
-
 
 
 def _strip_node_scope(payload: str) -> tuple[str | None, str]:

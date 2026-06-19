@@ -8,7 +8,7 @@ from fastapi import HTTPException
 
 from media_agents.env import DEMO_MODE, SELF_HOSTED
 from media_agents.prisma import prisma
-from media_agents.services.user import _to_dict
+from prisma.models import User
 
 CommandType = Literal[
     "image",
@@ -159,7 +159,7 @@ async def deduct_credits(user_id: uuid.UUID, command_type: CommandType) -> None:
 
 async def reset_subscription_credits(
     user_id: uuid.UUID, known_tier: str | None = None
-) -> dict | None:
+) -> User | None:
     tier = known_tier
     if not tier:
         user = await prisma.user.find_unique(where={"id": str(user_id)})
@@ -176,12 +176,12 @@ async def reset_subscription_credits(
         where={"id": str(user_id)},
         data={"subscriptionCredits": monthly, "creditsResetAt": next_reset},
     )
-    return _to_dict(user_updated) if user_updated else {}
+    return user_updated
 
 
-async def add_pack_credits(user_id: uuid.UUID, amount: int) -> dict | None:
+async def add_pack_credits(user_id: uuid.UUID, amount: int) -> User | None:
     user_updated = await prisma.user.update(
         where={"id": str(user_id)},
         data={"packCredits": {"increment": amount}},
     )
-    return _to_dict(user_updated) if user_updated else {}
+    return user_updated

@@ -101,4 +101,3 @@ async def create_local_user(
 
 async def get_user_by_username(username: str) -> Optional[dict]:
     return _to_dict(await prisma.user.find_unique(where={"username": username}))
-

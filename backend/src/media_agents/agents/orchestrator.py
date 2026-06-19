@@ -25,7 +25,11 @@ from pydantic_ai import Agent, RunContext
 from media_agents.agents.agent_maker import create_agent_from_description
 from media_agents.agents.client import fal_client
 from media_agents.agents.deps import OrchestratorDeps
-from media_agents.agents.fal_model import fal_chat_model, reset_current_attachments, set_current_attachments
+from media_agents.agents.fal_model import (
+    fal_chat_model,
+    reset_current_attachments,
+    set_current_attachments,
+)
 from media_agents.agents.research import research_task
 from media_agents.agents.specialist import SPECIALIST_REGISTRY
 from media_agents.agents.team_dag_executor import NodeResult, TeamDagExecutor
@@ -137,8 +141,8 @@ async def research(ctx: RunContext[OrchestratorDeps], query: str) -> str:
 
 # --- Team run synthesizer ---------------------------------------------------
 #
-# Runs AFTER a TeamDagExecutor completes. Takes the per-node results and
-# produces a single coherent message for the user. No tools; pure text.
+# Runs after the team execution DAG completes. Takes the per-node results and
+# produces a single coherent message for the user. Pure text without tools.
 
 synthesizer_agent: Agent[None, str] = Agent(
     fal_chat_model,
@@ -336,7 +340,10 @@ class AgentOrchestrator:
         return None
 
     async def stream(
-        self, message: str, history: list[dict[str, str]], attachments: list[dict] | None = None
+        self,
+        message: str,
+        history: list[dict[str, str]],
+        attachments: list[dict] | None = None,
     ) -> AsyncGenerator[str, None]:
         command = self._parse_command(message)
 
@@ -350,7 +357,6 @@ class AgentOrchestrator:
         if self._team_config is not None:
             yield "STATUS:processing"
 
-            # Fetch current balance for plan validation.
             user = await user_service.get_user_by_id(self.user_id)
             user_balance = (
                 (user.get("subscriptionCredits") or 0) + (user.get("packCredits") or 0)
@@ -388,7 +394,11 @@ class AgentOrchestrator:
                 system_prompt="",
                 max_credits=self._team_config.max_credits,
                 attachments=[
-                    {"filename": a["filename"], "mime_type": a["mime_type"], "data_url": a["data_url"]}
+                    {
+                        "filename": a["filename"],
+                        "mime_type": a["mime_type"],
+                        "data_url": a["data_url"],
+                    }
                     for a in (attachments or [])
                 ],
             )
@@ -454,7 +464,11 @@ class AgentOrchestrator:
             if self.custom_agent
             else None,
             attachments=[
-                {"filename": a["filename"], "mime_type": a["mime_type"], "data_url": a["data_url"]}
+                {
+                    "filename": a["filename"],
+                    "mime_type": a["mime_type"],
+                    "data_url": a["data_url"],
+                }
                 for a in (attachments or [])
             ],
         )
