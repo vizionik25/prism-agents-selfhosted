@@ -17,8 +17,15 @@ FRONTEND_URL = FRONTEND_URLS[0]
 DEMO_MODE: bool = get_env("DEMO_MODE", "false").lower() == "true"
 SELF_HOSTED: bool = get_env("SELF_HOSTED", "false").lower() == "true"
 PRISM_LICENSE_KEY: str = get_env("PRISM_LICENSE_KEY", "")
-ENABLE_LOCAL_AUTH: bool = get_env("ENABLE_LOCAL_AUTH", "true" if SELF_HOSTED else "false").lower() == "true"
-ENABLE_GITHUB_AUTH: bool = get_env("ENABLE_GITHUB_AUTH", "true" if get_env("GITHUB_CLIENT_ID") else "false").lower() == "true"
+ENABLE_LOCAL_AUTH: bool = (
+    get_env("ENABLE_LOCAL_AUTH", "true" if SELF_HOSTED else "false").lower() == "true"
+)
+ENABLE_GITHUB_AUTH: bool = (
+    get_env(
+        "ENABLE_GITHUB_AUTH", "true" if get_env("GITHUB_CLIENT_ID") else "false"
+    ).lower()
+    == "true"
+)
 
 
 def get_github_redirect_url() -> str:

@@ -20,7 +20,9 @@ async def test_plain_text_message_unchanged():
 async def test_image_attachment_creates_content_array():
     """An image attachment should produce a content array with image_url + text parts."""
     data_url = f"data:image/png;base64,{base64.b64encode(b'fakepng').decode()}"
-    attachments = [{"filename": "photo.png", "mime_type": "image/png", "data_url": data_url}]
+    attachments = [
+        {"filename": "photo.png", "mime_type": "image/png", "data_url": data_url}
+    ]
     messages = [ModelRequest(parts=[UserPromptPart(content="describe this")])]
     result = await _messages_to_openai(messages, attachments=attachments)
 
@@ -37,7 +39,9 @@ async def test_document_attachment_injects_text():
     text_content = "Document body here."
     encoded = base64.b64encode(text_content.encode()).decode()
     data_url = f"data:text/plain;base64,{encoded}"
-    attachments = [{"filename": "notes.txt", "mime_type": "text/plain", "data_url": data_url}]
+    attachments = [
+        {"filename": "notes.txt", "mime_type": "text/plain", "data_url": data_url}
+    ]
     messages = [ModelRequest(parts=[UserPromptPart(content="summarize")])]
     result = await _messages_to_openai(messages, attachments=attachments)
 
@@ -77,7 +81,9 @@ async def test_mixed_attachments():
 async def test_no_attachments_on_non_last_message():
     """Attachments should only affect the last user message."""
     img_url = f"data:image/png;base64,{base64.b64encode(b'fake').decode()}"
-    attachments = [{"filename": "img.png", "mime_type": "image/png", "data_url": img_url}]
+    attachments = [
+        {"filename": "img.png", "mime_type": "image/png", "data_url": img_url}
+    ]
     messages = [
         ModelRequest(parts=[UserPromptPart(content="first message")]),
         ModelRequest(parts=[UserPromptPart(content="second message")]),
@@ -94,7 +100,9 @@ async def test_no_attachments_on_non_last_message():
 async def test_video_attachment_creates_text_marker():
     """A video attachment should produce a text marker in the user message instead of image_url."""
     data_url = "data:video/mp4;base64,ZmFrZXZpZGVv"
-    attachments = [{"filename": "clip.mp4", "mime_type": "video/mp4", "data_url": data_url}]
+    attachments = [
+        {"filename": "clip.mp4", "mime_type": "video/mp4", "data_url": data_url}
+    ]
     messages = [ModelRequest(parts=[UserPromptPart(content="analyze")])]
     result = await _messages_to_openai(messages, attachments=attachments)
 
@@ -116,12 +124,16 @@ def test_nested_token_reset_behavior():
     assert get_current_attachments() is None
 
     # Outer run sets attachments
-    outer_att = [{"filename": "outer.png", "mime_type": "image/png", "data_url": "outer_url"}]
+    outer_att = [
+        {"filename": "outer.png", "mime_type": "image/png", "data_url": "outer_url"}
+    ]
     outer_token = set_current_attachments(outer_att)
     assert get_current_attachments() == outer_att
 
     # Inner run sets attachments
-    inner_att = [{"filename": "inner.png", "mime_type": "image/png", "data_url": "inner_url"}]
+    inner_att = [
+        {"filename": "inner.png", "mime_type": "image/png", "data_url": "inner_url"}
+    ]
     inner_token = set_current_attachments(inner_att)
     assert get_current_attachments() == inner_att
 

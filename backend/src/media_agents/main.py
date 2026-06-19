@@ -5,8 +5,7 @@ from pathlib import Path
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-# Sentry init must run before FastAPI is imported so the ASGI/Starlette/FastAPI
-# integrations hook class definitions at import time.
+# Initialize Sentry before importing FastAPI so that ASGI integrations can properly hook into the application at import time.
 import sentry_sdk  # noqa: E402
 from sentry_sdk.integrations.asyncio import AsyncioIntegration  # noqa: E402
 

@@ -20,9 +20,7 @@ class LicenseService:
             return None
         try:
             claims = jwt.decode(
-                PRISM_LICENSE_KEY,
-                LICENSE_PUBLIC_KEY,
-                algorithms=["RS256"]
+                PRISM_LICENSE_KEY, LICENSE_PUBLIC_KEY, algorithms=["RS256"]
             )
             # Verify expiration
             exp = claims.get("expires_at")

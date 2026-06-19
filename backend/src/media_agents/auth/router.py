@@ -1,5 +1,5 @@
 import re
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response
 
 from media_agents.auth.github import (
     get_github_auth_url,
@@ -49,17 +49,32 @@ class UserLogin(BaseModel):
 @router.get("/github")
 async def github_login():
     if not env.ENABLE_GITHUB_AUTH:
+async def github_login(response: Response):
+    if not ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
         )
     state = generate_state()
     url = get_github_auth_url(state)
+
+    # Set state as HttpOnly cookie to prevent CSRF attacks
+    response.set_cookie(
+        key="github_oauth_state",
+        value=state,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=600,  # 10 minutes
+    )
+
     return {"url": url, "state": state}
 
 
 @router.get("/callback", response_model=TokenResponse)
 async def github_callback(
+    request: Request,
+    response: Response,
     code: str = Query(...),
     state: str = Query(...),
 ):
@@ -68,6 +83,18 @@ async def github_callback(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
         )
+
+    # Verify the state parameter against the cookie
+    cookie_state = request.cookies.get("github_oauth_state")
+    if not cookie_state or cookie_state != state:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid state parameter. Possible CSRF attack.",
+        )
+
+    # Clear the cookie once used
+    response.delete_cookie("github_oauth_state")
+
     access_token = await exchange_code_for_token(code)
     if access_token is None:
         raise HTTPException(
@@ -180,6 +207,7 @@ async def register(data: UserRegister):
         or not re.search(r"[a-z]", password)
         or not re.search(r"\d", password)
         or not re.search(r"[^A-Za-z0-9]", password)
+        or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

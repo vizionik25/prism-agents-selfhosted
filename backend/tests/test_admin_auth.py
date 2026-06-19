@@ -3,18 +3,14 @@
 from __future__ import annotations
 
 import uuid
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
 
 from media_agents.auth.dependencies import (
     require_admin,
     require_super_admin,
-    get_current_user,
 )
-from media_agents.services.api_key import API_KEY_PREFIX
 
 
 @pytest.fixture

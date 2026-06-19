@@ -1762,6 +1762,8 @@ function TeamsPanel(props: {
     isCreatingFromTemplate,
   } = props
 
+  const agentMap = useMemo(() => new Map(agents.map(a => [a.id, a])), [agents])
+
   return (
     <section className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -1829,7 +1831,7 @@ function TeamsPanel(props: {
               <TeamCard
                 key={team.id}
                 team={team}
-                agents={agents}
+                agentMap={agentMap}
                 boardId={boardId}
                 onEdit={() => onEditTeam(team)}
                 onDelete={() => onDeleteTeam(team.id)}
@@ -1948,12 +1950,12 @@ function TeamTemplateCard(props: {
 
 function TeamCard(props: {
   team: Team
-  agents: Agent[]
+  agentMap: Map<string, Agent>
   boardId: string
   onEdit: () => void
   onDelete: () => void
 }) {
-  const { team, agents, boardId, onEdit, onDelete } = props
+  const { team, agentMap, boardId, onEdit, onDelete } = props
   const capCount = team.members?.capabilities?.length ?? 0
   const agentCount = team.members?.agent_ids?.length ?? 0
   const totalMembers = capCount + agentCount
@@ -1963,7 +1965,7 @@ function TeamCard(props: {
     .filter((t): t is Template => Boolean(t))
 
   const agentChips = (team.members?.agent_ids ?? [])
-    .map((id) => agents.find((a) => a.id === id))
+    .map((id) => agentMap.get(id))
     .filter((a): a is Agent => Boolean(a))
 
   const routing = ROUTING_STRATEGIES.find(
