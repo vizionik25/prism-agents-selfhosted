@@ -106,3 +106,13 @@ def test_verify_password_none_input():
     assert verify_password(None, "hash") is False
     assert verify_password("pwd", None) is False
     assert verify_password(None, None) is False
+
+
+def test_verify_password_invalid_hash_formats():
+    pwd = "my-secret-password"
+    # Empty hash
+    assert verify_password(pwd, "") is False
+    # Hash missing $ sign structure
+    assert verify_password(pwd, "invalidhashwithoutdollarsigns") is False
+    # Short string
+    assert verify_password(pwd, "short") is False
