@@ -51,7 +51,9 @@ def _format_dt(dt) -> Optional[str]:
     return dt.isoformat()
 
 
-@router.post("", response_model=ApiKeyCreatedResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=ApiKeyCreatedResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_api_key(
     body: CreateApiKeyRequest,
     current_user: dict = Depends(get_current_user),

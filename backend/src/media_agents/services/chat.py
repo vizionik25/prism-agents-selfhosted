@@ -38,18 +38,27 @@ class ChatMessage(BaseModel):
 
 ALLOWED_MIME_TYPES = {
     # Images
-    "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
     # Videos
-    "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
     # Documents
-    "application/pdf", "text/plain", "text/markdown",
+    "application/pdf",
+    "text/plain",
+    "text/markdown",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
 
 # Per-type size limits in bytes
 _SIZE_LIMITS = {
-    "image": 20 * 1024 * 1024,     # 20 MB
-    "video": 50 * 1024 * 1024,     # 50 MB
+    "image": 20 * 1024 * 1024,  # 20 MB
+    "video": 50 * 1024 * 1024,  # 50 MB
     "document": 10 * 1024 * 1024,  # 10 MB
 }
 
@@ -141,7 +150,6 @@ class ChatRequest(BaseModel):
     attachments: list[ChatAttachment] = []
 
 
-
 def _strip_node_scope(payload: str) -> tuple[str | None, str]:
     """Split a prefix-tagged payload into (node_id, rest).
 
@@ -216,7 +224,8 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 )
             yield {"event": "error", "data": json.dumps(e.detail)}
         else:
-            yield {"event": "error", "data": str(e)}
+            logger.exception("Chat stream initialization failed")
+            yield {"event": "error", "data": "An unexpected error occurred."}
         return
 
     board = await board_service.get_board_by_id(request.board_id, user_id)
@@ -379,6 +388,7 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
         )
 
     except Exception as e:
+        logger.exception("Chat generation failed for generation %s", gen_id)
         await generation_service.update_generation(gen_id, status="FAILED")
         analytics.capture(
             user_id=str(user_id),
@@ -399,7 +409,10 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 "error_code": type(e).__name__,
             },
         )
-        yield {"event": "error", "data": str(e)}
+        yield {
+            "event": "error",
+            "data": "An unexpected error occurred during generation.",
+        }
         yield {"event": "generation_end", "data": ""}
         return
 

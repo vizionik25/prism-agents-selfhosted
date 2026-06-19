@@ -54,6 +54,7 @@ def key_prefix(raw_key: str) -> str:
 def _check_tier(user: dict) -> None:
     if SELF_HOSTED:
         from media_agents.services.license import LicenseService
+
         if not LicenseService.has_enterprise_license():
             raise HTTPException(
                 status_code=403,

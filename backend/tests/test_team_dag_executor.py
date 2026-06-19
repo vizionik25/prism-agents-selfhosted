@@ -317,9 +317,16 @@ async def test_executor_propagates_attachments(monkeypatch, user_id, board_id):
     class _AttachmentVerifyingSpec(_FakeSpecialist):
         async def run(self, request: str, *, deps: OrchestratorDeps):
             from media_agents.agents import fal_model
+
             attachments_captured.append(list(fal_model.get_current_attachments() or []))
             # Verify deps.attachments has the attachments
-            assert deps.attachments == [{"filename": "test.png", "mime_type": "image/png", "data_url": "data:..."}]
+            assert deps.attachments == [
+                {
+                    "filename": "test.png",
+                    "mime_type": "image/png",
+                    "data_url": "data:...",
+                }
+            ]
             return await super().run(request, deps=deps)
 
     _register_specialist(
@@ -337,12 +344,15 @@ async def test_executor_propagates_attachments(monkeypatch, user_id, board_id):
         user_id=user_id,
         board_id=board_id,
         system_prompt="",
-        attachments=[{"filename": "test.png", "mime_type": "image/png", "data_url": "data:..."}],
+        attachments=[
+            {"filename": "test.png", "mime_type": "image/png", "data_url": "data:..."}
+        ],
     )
     q: asyncio.Queue[str] = asyncio.Queue()
 
     # Before running, get_current_attachments() should be None
     from media_agents.agents import fal_model
+
     assert fal_model.get_current_attachments() is None
 
     results = await TeamDagExecutor(plan, deps, q, max_parallel=1).run()
@@ -351,11 +361,15 @@ async def test_executor_propagates_attachments(monkeypatch, user_id, board_id):
     assert fal_model.get_current_attachments() is None
 
     assert len(attachments_captured) == 1
-    assert attachments_captured[0] == [{"filename": "test.png", "mime_type": "image/png", "data_url": "data:..."}]
+    assert attachments_captured[0] == [
+        {"filename": "test.png", "mime_type": "image/png", "data_url": "data:..."}
+    ]
     assert results["n1"].state == "done"
 
 
-async def test_executor_propagates_attachments_concurrently(monkeypatch, user_id, board_id):
+async def test_executor_propagates_attachments_concurrently(
+    monkeypatch, user_id, board_id
+):
     import contextvars
     from dataclasses import dataclass
     from media_agents.agents import fal_model
@@ -422,9 +436,21 @@ async def test_executor_propagates_attachments_concurrently(monkeypatch, user_id
     class _CustomAttachmentsExecutor(TeamDagExecutor):
         async def _execute_node(self, node: PlanNode, cost: int) -> None:
             if node.id == "n1":
-                self.deps.attachments = [{"filename": "n1.png", "mime_type": "image/png", "data_url": "n1_url"}]
+                self.deps.attachments = [
+                    {
+                        "filename": "n1.png",
+                        "mime_type": "image/png",
+                        "data_url": "n1_url",
+                    }
+                ]
             elif node.id == "n2":
-                self.deps.attachments = [{"filename": "n2.png", "mime_type": "image/png", "data_url": "n2_url"}]
+                self.deps.attachments = [
+                    {
+                        "filename": "n2.png",
+                        "mime_type": "image/png",
+                        "data_url": "n2_url",
+                    }
+                ]
             await super()._execute_node(node, cost)
 
     # Before running, get_current_attachments() should be None
@@ -440,14 +466,21 @@ async def test_executor_propagates_attachments_concurrently(monkeypatch, user_id
 
     # Verify n1 only saw n1.png
     assert len(captured_n1) == 2
-    assert captured_n1[0] == [{"filename": "n1.png", "mime_type": "image/png", "data_url": "n1_url"}]
-    assert captured_n1[1] == [{"filename": "n1.png", "mime_type": "image/png", "data_url": "n1_url"}]
+    assert captured_n1[0] == [
+        {"filename": "n1.png", "mime_type": "image/png", "data_url": "n1_url"}
+    ]
+    assert captured_n1[1] == [
+        {"filename": "n1.png", "mime_type": "image/png", "data_url": "n1_url"}
+    ]
 
     # Verify n2 only saw n2.png
     assert len(captured_n2) == 2
-    assert captured_n2[0] == [{"filename": "n2.png", "mime_type": "image/png", "data_url": "n2_url"}]
-    assert captured_n2[1] == [{"filename": "n2.png", "mime_type": "image/png", "data_url": "n2_url"}]
+    assert captured_n2[0] == [
+        {"filename": "n2.png", "mime_type": "image/png", "data_url": "n2_url"}
+    ]
+    assert captured_n2[1] == [
+        {"filename": "n2.png", "mime_type": "image/png", "data_url": "n2_url"}
+    ]
 
     # Reset attachments properly
     test_attachments_var.set([])
-

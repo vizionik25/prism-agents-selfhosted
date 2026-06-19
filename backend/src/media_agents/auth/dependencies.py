@@ -51,6 +51,7 @@ async def get_current_user(
             )
         if SELF_HOSTED:
             from media_agents.services.license import LicenseService
+
             if not LicenseService.has_enterprise_license():
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -106,6 +107,7 @@ async def get_optional_user(
             return None
         if SELF_HOSTED:
             from media_agents.services.license import LicenseService
+
             if not LicenseService.has_enterprise_license():
                 return None
         else:
