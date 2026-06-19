@@ -15,7 +15,7 @@ from media_agents.analytics import analytics
 from media_agents.analytics.events import USER_SIGNED_IN, USER_SIGNED_UP
 from media_agents.analytics.traits import full_identify_payload, signin_traits
 from pydantic import BaseModel
-from media_agents.env import ENABLE_LOCAL_AUTH, ENABLE_GITHUB_AUTH
+from media_agents import env
 from media_agents.auth.pwd_utils import get_password_hash, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -47,6 +47,8 @@ class UserLogin(BaseModel):
 
 
 @router.get("/github")
+async def github_login():
+    if not env.ENABLE_GITHUB_AUTH:
 async def github_login(response: Response):
     if not ENABLE_GITHUB_AUTH:
         raise HTTPException(
@@ -76,7 +78,7 @@ async def github_callback(
     code: str = Query(...),
     state: str = Query(...),
 ):
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
@@ -183,7 +185,7 @@ async def github_callback(
 
 @router.post("/register", response_model=TokenResponse)
 async def register(data: UserRegister):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",
@@ -198,11 +200,13 @@ async def register(data: UserRegister):
             detail="Username must be at least 3 characters.",
         )
     password = data.password
+    # Enforce strong password policy: minimum length and complexity requirements
     if (
         len(password) < 8
         or not re.search(r"[A-Z]", password)
         or not re.search(r"[a-z]", password)
         or not re.search(r"\d", password)
+        or not re.search(r"[^A-Za-z0-9]", password)
         or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)
     ):
         raise HTTPException(
@@ -265,7 +269,7 @@ async def register(data: UserRegister):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: UserLogin):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",
