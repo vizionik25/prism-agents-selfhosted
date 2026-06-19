@@ -115,13 +115,23 @@ export default function DashboardPage() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
+                <label htmlFor="board-name" className="text-sm font-medium">
+                  Board name
+                </label>
                 <Input
-                  placeholder="Board name"
+                  id="board-name"
+                  placeholder="e.g. Q3 Marketing Campaign"
                   value={newBoardName}
                   onChange={(e) => setNewBoardName(e.target.value)}
                 />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="board-description" className="text-sm font-medium">
+                  Description (optional)
+                </label>
                 <Textarea
-                  placeholder="Description (optional)"
+                  id="board-description"
+                  placeholder="What is this board for?"
                   value={newBoardDescription}
                   onChange={(e) => setNewBoardDescription(e.target.value)}
                 />
