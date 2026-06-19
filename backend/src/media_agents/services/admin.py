@@ -13,7 +13,7 @@ from typing import Optional
 from fastapi import HTTPException
 
 from media_agents.prisma import prisma
-from media_agents.services.credits import reset_subscription_credits
+from media_agents.services.credits import reset_subscription_credits, add_pack_credits
 
 logger = logging.getLogger(__name__)
 
