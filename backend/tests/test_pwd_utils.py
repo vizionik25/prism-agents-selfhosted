@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from media_agents.auth.pwd_utils import verify_password, get_password_hash
 
 
@@ -42,4 +43,20 @@ def test_verify_password_invalid_hash_format_with_valid_prefix():
 def test_verify_password_type_error():
     # Passing None to trigger a type error when encoding, which goes to exception block
     result = verify_password(None, "some_hash")
+    assert result is False
+
+
+def test_verify_password_bcrypt_raises_exception():
+    # Explicitly test the generic except Exception block in verify_password
+    with patch(
+        "media_agents.auth.pwd_utils.bcrypt.checkpw",
+        side_effect=Exception("Mock bcrypt error"),
+    ):
+        result = verify_password("some_password", "some_hash")
+        assert result is False
+
+def test_verify_password_invalid_salt():
+    # Natively trigger a ValueError in bcrypt by passing an invalid salt/hash format
+    # to explicitly cover the exception block without mocking
+    result = verify_password("some_password", "$2b$invalid_format_hash_that_triggers_value_error")
     assert result is False
