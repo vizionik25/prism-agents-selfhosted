@@ -2,7 +2,7 @@
 from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, patch
-from media_agents.agents.client import FalClient
+from media_agents.agents.client import FalClient, ImageTo3DRequest
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ async def test_generate_3d_from_images_returns_urls(client):
             }
         )
         result = await client.generate_3d_from_images(
-            image_url="https://example.com/front.jpg"
+            request=ImageTo3DRequest(image_url="https://example.com/front.jpg")
         )
     assert result["model_url"] == "https://fal.media/mesh.glb"
     assert m.run_async.call_args[0][0] == "fal-ai/meshy/v5/multi-image-to-3d"
@@ -145,9 +145,11 @@ async def test_generate_3d_from_images_passes_optional_views(client):
             }
         )
         await client.generate_3d_from_images(
-            image_url="https://example.com/front.jpg",
-            left_image_url="https://example.com/left.jpg",
-            back_image_url="https://example.com/back.jpg",
+            request=ImageTo3DRequest(
+                image_url="https://example.com/front.jpg",
+                left_image_url="https://example.com/left.jpg",
+                back_image_url="https://example.com/back.jpg",
+            )
         )
     args = m.run_async.call_args[1]["arguments"]
     assert args["left_image_url"] == "https://example.com/left.jpg"

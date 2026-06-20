@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from media_agents.schemas.team import TeamCreate, TeamUpdate
 
 from media_agents.auth.dependencies import get_current_user
 from media_agents.services import team as team_service
@@ -18,6 +20,22 @@ from media_agents.schemas.team import (
 
 
 router = APIRouter(prefix="/teams", tags=["teams"])
+router = APIRouter(prefix="/teams", tags=["teams"])
+
+
+class TeamResponse(BaseModel):
+    id: str
+    name: str
+    description: Optional[str]
+    board_id: Optional[str]
+    members: Dict[str, Any]
+    orchestrator: Dict[str, Any]
+    created_at: str
+    updated_at: str
+
+
+class TeamListResponse(BaseModel):
+    teams: List[TeamResponse]
 
 
 def _format_datetime(dt: datetime) -> str:

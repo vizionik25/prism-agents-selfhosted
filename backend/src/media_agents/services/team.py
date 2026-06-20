@@ -2,6 +2,7 @@ import uuid
 from typing import List, Optional
 
 from prisma import Json
+from media_agents.schemas.team import TeamCreate, TeamUpdate
 
 from media_agents.schemas.team import TeamCreate, TeamUpdate
 from media_agents.prisma import prisma
@@ -47,6 +48,7 @@ async def create_team(
             "members": Json(
                 data.members.model_dump(exclude_none=True) if data.members else {}
             ),
+            "members": Json(data.members.model_dump() if data.members else {}),
             "orchestrator": Json(
                 data.orchestrator.model_dump(exclude_none=True)
                 if data.orchestrator
@@ -73,6 +75,7 @@ async def update_team(
         update_data["description"] = data.description
     if data.members is not None:
         update_data["members"] = Json(data.members.model_dump(exclude_none=True))
+        update_data["members"] = Json(data.members.model_dump())
     if data.orchestrator is not None:
         update_data["orchestrator"] = Json(
             data.orchestrator.model_dump(exclude_none=True)

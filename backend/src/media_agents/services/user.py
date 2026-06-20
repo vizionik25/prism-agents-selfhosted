@@ -1,6 +1,8 @@
 import uuid
 from typing import Optional
 
+from pydantic import BaseModel
+
 from media_agents.prisma import prisma
 
 
@@ -8,6 +10,14 @@ def _to_dict(user) -> Optional[dict]:
     if user is None:
         return None
     return user.model_dump()
+
+
+class UserBillingUpdate(BaseModel):
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+    subscription_tier: Optional[str] = None
+    subscription_credits: Optional[int] = None
+    pack_credits_delta: Optional[int] = None
 
 
 async def get_user_by_id(user_id: uuid.UUID) -> Optional[dict]:
@@ -58,23 +68,19 @@ async def update_user(
 
 async def update_user_billing(
     user_id: uuid.UUID,
-    stripe_customer_id=None,
-    stripe_subscription_id=None,
-    subscription_tier=None,
-    subscription_credits=None,
-    pack_credits_delta=None,
+    update_data: UserBillingUpdate,
 ) -> dict:
     data = {}
-    if stripe_customer_id is not None:
-        data["stripeCustomerId"] = stripe_customer_id
-    if stripe_subscription_id is not None:
-        data["stripeSubscriptionId"] = stripe_subscription_id
-    if subscription_tier is not None:
-        data["subscriptionTier"] = subscription_tier
-    if subscription_credits is not None:
-        data["subscriptionCredits"] = subscription_credits
-    if pack_credits_delta is not None:
-        data["packCredits"] = {"increment": pack_credits_delta}
+    if update_data.stripe_customer_id is not None:
+        data["stripeCustomerId"] = update_data.stripe_customer_id
+    if update_data.stripe_subscription_id is not None:
+        data["stripeSubscriptionId"] = update_data.stripe_subscription_id
+    if update_data.subscription_tier is not None:
+        data["subscriptionTier"] = update_data.subscription_tier
+    if update_data.subscription_credits is not None:
+        data["subscriptionCredits"] = update_data.subscription_credits
+    if update_data.pack_credits_delta is not None:
+        data["packCredits"] = {"increment": update_data.pack_credits_delta}
     user = await prisma.user.update(where={"id": str(user_id)}, data=data)
     return _to_dict(user) if user else {}
 
