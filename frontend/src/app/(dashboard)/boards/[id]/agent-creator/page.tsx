@@ -374,6 +374,7 @@ const TEMPLATES: Template[] = [
 ]
 
 const TEMPLATES_BY_CAPABILITY = new Map(TEMPLATES.filter((t) => t.capability).map((t) => [t.capability, t]))
+const TEMPLATES_BY_NAME = new Map(TEMPLATES.map((t) => [t.name, t]))
 
 const CATEGORIES = ["All", "Media", "Audio", "3D", "AI", "Creative", "Training", "Custom"] as const
 type Category = (typeof CATEGORIES)[number]
@@ -633,7 +634,7 @@ export default function AgentCreatorPage() {
 
   // ── Creator helpers ─────────────────────────────────────────
   const selectTemplate = (templateName: string) => {
-    const template = TEMPLATES.find((t) => t.name === templateName)
+    const template = TEMPLATES_BY_NAME.get(templateName)
     if (template) {
       setSelectedTemplate(templateName)
       setSystemPrompt(template.defaultPrompt)
@@ -661,7 +662,7 @@ export default function AgentCreatorPage() {
     setSystemPrompt(agent.system_prompt)
     setSelectedModel((agent.config?.model as string) ?? "")
     const capability = agent.config?.capability as string | undefined
-    const matchingTemplate = TEMPLATES.find((t) => t.capability === capability)
+    const matchingTemplate = capability ? TEMPLATES_BY_CAPABILITY.get(capability) : undefined
     setSelectedTemplate(matchingTemplate?.name ?? null)
     setEditingAgentId(agent.id)
     setTab("creator")
@@ -671,7 +672,7 @@ export default function AgentCreatorPage() {
   const handleSaveAgent = async () => {
     if (!agentName.trim() || !systemPrompt.trim()) return
 
-    const template = TEMPLATES.find((t) => t.name === selectedTemplate)
+    const template = selectedTemplate ? TEMPLATES_BY_NAME.get(selectedTemplate) : undefined
     const config: Record<string, unknown> = {}
     if (template?.capability) config.capability = template.capability
     if (selectedModel) config.model = selectedModel
@@ -1298,7 +1299,7 @@ function CreatorPanel(props: {
     formRef,
   } = props
 
-  const template = TEMPLATES.find((t) => t.name === selectedTemplate)
+  const template = selectedTemplate ? TEMPLATES_BY_NAME.get(selectedTemplate) : undefined
   const templateCats = CATEGORIES.filter((c) => c !== "Custom") as readonly Exclude<
     Category,
     "Custom"
