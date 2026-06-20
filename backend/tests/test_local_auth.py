@@ -2,6 +2,8 @@ import pytest
 from fastapi.testclient import TestClient
 from media_agents.main import app
 
+from media_agents.main import app
+
 
 @pytest.fixture(scope="module")
 def client():
@@ -17,6 +19,8 @@ def client():
 
 @pytest.fixture(autouse=True)
 def mock_prisma(monkeypatch):
+    from media_agents.services import user as user_service
+
     async def mock_get_user_by_email(email):
         return None
 
@@ -39,12 +43,13 @@ def mock_prisma(monkeypatch):
     monkeypatch.setattr(user_service, "create_local_user", mock_create_local_user)
 
     # Mock analytics to avoid sending events during tests
-    from media_agents.analytics import analytics  # noqa: E402
+    from media_agents.analytics import analytics
 
     monkeypatch.setattr(analytics, "identify", lambda *args, **kwargs: None)
     monkeypatch.setattr(analytics, "capture", lambda *args, **kwargs: None)
 
 
+def test_register_weak_password(client):
 def test_register_weak_password(client, monkeypatch):
     from media_agents.auth import router
 
@@ -85,6 +90,7 @@ def test_register_weak_password(enable_auth, monkeypatch):
     assert "Password must be at least 8 characters long" in response.json()["detail"]
 
 
+def test_register_weak_password_no_special(client):
 def test_register_weak_password_no_special(client, monkeypatch):
     from media_agents.auth import router
 
@@ -105,6 +111,9 @@ def test_register_weak_password_no_special(enable_auth, monkeypatch):
     )
     assert response.status_code == 400
     assert (
+        "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+        in response.json()["detail"]
+    )
         "Password must be at least 8 characters long and contain at least one uppercase letter"
         in response.json()["detail"]
     )
@@ -204,6 +213,7 @@ def test_register_strong_password(enable_auth, monkeypatch):
         ),
     )
 
+def test_register_strong_password(client):
     response = client.post(
         "/auth/login",
         json={

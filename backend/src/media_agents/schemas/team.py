@@ -1,4 +1,5 @@
 import uuid
+from typing import Any, Dict, List, Optional
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -30,3 +31,18 @@ class TeamUpdate(BaseModel):
     description: Optional[str] = None
     members: Optional[TeamMembers] = None
     orchestrator: Optional[TeamOrchestrator] = None
+
+
+class TeamResponse(BaseModel):
+    id: str
+    name: str
+    description: Optional[str]
+    board_id: Optional[str]
+    members: Dict[str, Any]
+    orchestrator: Dict[str, Any]
+    created_at: str
+    updated_at: str
+
+
+class TeamListResponse(BaseModel):
+    teams: List[TeamResponse]

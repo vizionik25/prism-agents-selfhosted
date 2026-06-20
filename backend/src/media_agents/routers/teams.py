@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -11,6 +11,15 @@ from media_agents.services import team as team_service
 from media_agents.analytics import analytics
 from media_agents.analytics.events import TEAM_CREATED, TEAM_DELETED
 
+from media_agents.schemas.team import (
+    TeamCreate,
+    TeamUpdate,
+    TeamResponse,
+    TeamListResponse,
+)
+
+
+router = APIRouter(prefix="/teams", tags=["teams"])
 router = APIRouter(prefix="/teams", tags=["teams"])
 
 
