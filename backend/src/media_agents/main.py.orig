@@ -40,13 +40,11 @@ from media_agents.routers.chat import router as chat_router  # noqa: E402
 from media_agents.routers.billing import router as billing_router  # noqa: E402
 from media_agents.routers.api_keys import router as api_keys_router  # noqa: E402
 from media_agents.routers.admin import router as admin_router  # noqa: E402
-from media_agents.auth.rate_limit import start_cleanup_task  # noqa: E402
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await prisma.connect()
-    start_cleanup_task()
     try:
         yield
     finally:

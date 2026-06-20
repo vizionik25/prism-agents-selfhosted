@@ -10,6 +10,7 @@ from media_agents.auth.github import (
 )
 from media_agents.auth.jwt import create_access_token
 from media_agents.auth.dependencies import get_current_user
+from media_agents.auth.rate_limit import auth_rate_limit
 from media_agents.services import user as user_service
 from media_agents.analytics import analytics
 from media_agents.analytics.events import USER_SIGNED_IN, USER_SIGNED_UP
@@ -47,10 +48,8 @@ class UserLogin(BaseModel):
 
 
 @router.get("/github")
-async def github_login():
-    if not env.ENABLE_GITHUB_AUTH:
 async def github_login(response: Response):
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
@@ -183,7 +182,7 @@ async def github_callback(
     )
 
 
-@router.post("/register", response_model=TokenResponse)
+@router.post("/register", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def register(data: UserRegister):
     if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
@@ -267,7 +266,7 @@ async def register(data: UserRegister):
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(data: UserLogin):
     if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
