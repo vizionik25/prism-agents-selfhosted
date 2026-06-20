@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from media_agents.auth.pwd_utils import verify_password, get_password_hash
 
 
@@ -46,6 +47,14 @@ def test_verify_password_type_error():
     assert result is False
 
 
+def test_verify_password_generic_exception():
+    # Test that any generic exception thrown by bcrypt.checkpw is caught and returns False
+    with patch(
+        "media_agents.auth.pwd_utils.bcrypt.checkpw",
+        side_effect=Exception("Mocked generic exception"),
+    ):
+        result = verify_password("some_password", "some_hash")
+        assert result is False
 def test_verify_password_bcrypt_raises_exception():
     # Explicitly test the generic except Exception block in verify_password
     with patch(
