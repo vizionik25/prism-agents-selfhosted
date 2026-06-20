@@ -1,59 +1,23 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 
 from media_agents.auth.dependencies import get_current_user
 from media_agents.services import team as team_service
 from media_agents.analytics import analytics
 from media_agents.analytics.events import TEAM_CREATED, TEAM_DELETED
 
+from media_agents.schemas.team import (
+    TeamCreate,
+    TeamUpdate,
+    TeamResponse,
+    TeamListResponse,
+)
+
+
 router = APIRouter(prefix="/teams", tags=["teams"])
-
-
-class TeamMembers(BaseModel):
-    capabilities: List[str] = []
-    agent_ids: List[str] = []
-
-
-class TeamOrchestrator(BaseModel):
-    system_prompt: Optional[str] = None
-    model: Optional[str] = None
-    temperature: Optional[float] = None
-    routing_strategy: Optional[str] = None
-    max_credits: Optional[int] = None
-
-
-class TeamCreate(BaseModel):
-    name: str
-    description: Optional[str] = None
-    board_id: Optional[uuid.UUID] = None
-    members: Optional[TeamMembers] = None
-    orchestrator: Optional[TeamOrchestrator] = None
-
-
-class TeamUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    members: Optional[TeamMembers] = None
-    orchestrator: Optional[TeamOrchestrator] = None
-
-
-class TeamResponse(BaseModel):
-    id: str
-    name: str
-    description: Optional[str]
-    board_id: Optional[str]
-    members: Dict[str, Any]
-    orchestrator: Dict[str, Any]
-    created_at: str
-    updated_at: str
-
-
-class TeamListResponse(BaseModel):
-    teams: List[TeamResponse]
 
 
 def _format_datetime(dt: datetime) -> str:
@@ -95,11 +59,7 @@ async def create_team(
 ):
     team = await team_service.create_team(
         uuid.UUID(current_user["id"]),
-        data.name,
-        data.board_id,
-        data.description,
-        data.members.model_dump() if data.members else None,
-        data.orchestrator.model_dump(exclude_none=True) if data.orchestrator else None,
+        data,
     )
     members = team.get("members") or {}
     member_count = len(members.get("agent_ids") or []) + len(
@@ -146,10 +106,7 @@ async def update_team(
     updated = await team_service.update_team(
         team_id,
         user_id,
-        data.name,
-        data.description,
-        data.members.model_dump() if data.members else None,
-        data.orchestrator.model_dump(exclude_none=True) if data.orchestrator else None,
+        data,
     )
     return _to_response(updated)
 
