@@ -121,6 +121,34 @@ describe('api client', () => {
     expect(result).toEqual({});
   });
 
+
+  it('should handle undefined window gracefully when fetching token', async () => {
+    // Temporarily hide window object
+    const originalWindow = global.window;
+    // @ts-expect-error - TS complains about deleting global window but it is necessary for testing
+    delete global.window;
+
+    const { api } = await import('../api');
+    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+
+    await api.auth.me();
+
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/auth/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: undefined,
+    });
+
+    // Restore window
+    global.window = originalWindow;
+  });
+
   it('should throw an error if response is not ok', async () => {
     const { api } = await import('../api');
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -376,6 +404,10 @@ describe('API endpoint wrappers', () => {
       (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({}) });
       await api.admin.listUsers({ search: 'test', page: 2 });
       expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/admin/users?search=test&page=2', expect.objectContaining({ method: 'GET' }));
+
+      (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({}) });
+      await api.admin.listUsers({ tier: 'pro', per_page: 50 });
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/admin/users?tier=pro&per_page=50', expect.objectContaining({ method: 'GET' }));
     });
 
     it('getUser', async () => {
