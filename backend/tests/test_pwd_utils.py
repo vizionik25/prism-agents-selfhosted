@@ -55,3 +55,17 @@ def test_verify_password_generic_exception():
     ):
         result = verify_password("some_password", "some_hash")
         assert result is False
+def test_verify_password_bcrypt_raises_exception():
+    # Explicitly test the generic except Exception block in verify_password
+    with patch(
+        "media_agents.auth.pwd_utils.bcrypt.checkpw",
+        side_effect=Exception("Mock bcrypt error"),
+    ):
+        result = verify_password("some_password", "some_hash")
+        assert result is False
+
+def test_verify_password_invalid_salt():
+    # Natively trigger a ValueError in bcrypt by passing an invalid salt/hash format
+    # to explicitly cover the exception block without mocking
+    result = verify_password("some_password", "$2b$invalid_format_hash_that_triggers_value_error")
+    assert result is False

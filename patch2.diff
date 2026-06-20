@@ -1,0 +1,18 @@
+--- backend/src/media_agents/auth/rate_limit.py
++++ backend/src/media_agents/auth/rate_limit.py
+@@ -52,5 +52,11 @@
+         _rate_limit_store.clear()
+         _rate_limit_store.update(new_store)
+
+-# Start the cleanup task
+-asyncio.create_task(_cleanup_rate_limits())
++
++_cleanup_task = None
++
++def start_cleanup_task():
++    global _cleanup_task
++    if _cleanup_task is None:
++        try:
++            _cleanup_task = asyncio.create_task(_cleanup_rate_limits())
++        except RuntimeError:
++            pass

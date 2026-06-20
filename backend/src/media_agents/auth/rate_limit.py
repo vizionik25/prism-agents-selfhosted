@@ -1,0 +1,92 @@
+import time
+from collections import defaultdict
+from fastapi import Request, HTTPException, status
+import asyncio
+
+# In-memory store for rate limiting: {ip_address: [timestamp1, timestamp2, ...]}
+_rate_limit_store = defaultdict(list)
+
+# Max requests per minute
+RATE_LIMIT_MAX_REQUESTS = 5
+RATE_LIMIT_WINDOW_SECONDS = 60
+
+# Determine if we should trust forwarded headers
+# In production, this should ideally be configured via an environment variable
+# to ensure it's only active when behind a trusted proxy.
+TRUST_FORWARDED_HEADERS = True
+
+
+def _get_client_ip(request: Request) -> str:
+    # If the app is directly exposed, we should NOT trust these headers.
+    # We will only use them if explicitly trusted, to prevent spoofing bypasses.
+    if TRUST_FORWARDED_HEADERS:
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        if forwarded_for:
+            # The right-most IP is typically the most trustworthy if we trust the proxy chain,
+            # but standard practice is often to take the first (left-most) as the original client.
+            # However, since any client can spoof the left-most IP,
+            # if we are behind a single trusted proxy, the right-most IP is the one the proxy appended.
+            # For simplicity and given the context, we will fallback to request.client.host if the header isn't reliable,
+            # or use the left-most if we assume a standard setup.
+            # To prevent trivial spoofing, we use the right-most IP added by the trusted proxy.
+            ips = [ip.strip() for ip in forwarded_for.split(",")]
+            if ips:
+                return ips[-1]
+
+        real_ip = request.headers.get("X-Real-IP")
+        if real_ip:
+            return real_ip.strip()
+
+    return request.client.host if request.client else "unknown"
+
+
+async def auth_rate_limit(request: Request):
+    client_ip = _get_client_ip(request)
+    now = time.time()
+
+    # Get timestamps for this IP
+    timestamps = _rate_limit_store[client_ip]
+
+    # Remove older timestamps outside the window
+    valid_timestamps = [t for t in timestamps if now - t < RATE_LIMIT_WINDOW_SECONDS]
+    _rate_limit_store[client_ip] = valid_timestamps
+
+    if len(valid_timestamps) >= RATE_LIMIT_MAX_REQUESTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too Many Requests",
+        )
+
+    # Add current timestamp
+    valid_timestamps.append(now)
+
+
+# Background cleanup task to prevent memory leaks and event loop blocking
+async def _cleanup_rate_limits():
+    while True:
+        await asyncio.sleep(RATE_LIMIT_WINDOW_SECONDS)
+        now = time.time()
+
+        # Create a new dict instead of modifying while iterating
+        # Only keep IPs that have recent timestamps
+        new_store = defaultdict(list)
+        for ip, timestamps in _rate_limit_store.items():
+            valid = [t for t in timestamps if now - t < RATE_LIMIT_WINDOW_SECONDS]
+            if valid:
+                new_store[ip] = valid
+
+        # Replace the store
+        _rate_limit_store.clear()
+        _rate_limit_store.update(new_store)
+
+
+
+_cleanup_task = None
+
+def start_cleanup_task():
+    global _cleanup_task
+    if _cleanup_task is None:
+        try:
+            _cleanup_task = asyncio.create_task(_cleanup_rate_limits())
+        except RuntimeError:
+            pass
