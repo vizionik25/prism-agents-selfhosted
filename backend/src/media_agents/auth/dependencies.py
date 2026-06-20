@@ -66,6 +66,7 @@ async def get_current_user(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="API key access requires a Plus or higher subscription.",
                 )
+        user["is_api_key"] = True
         return user
 
     # --- JWT path (existing) ---
@@ -116,6 +117,7 @@ async def get_optional_user(
                 tier = tier.value
             if tier not in ALLOWED_TIERS:
                 return None
+        user["is_api_key"] = True
         return user
 
     user_id = decode_token(token)
@@ -129,6 +131,11 @@ async def require_admin(
     current_user: dict = Depends(get_current_user),
 ) -> dict:
     """Require ADMIN or SUPER_ADMIN role. Rejects API key auth."""
+    if current_user.get("is_api_key"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="API key auth not allowed for admin endpoints",
+        )
     role = current_user.get("role", "USER")
     if hasattr(role, "value"):
         role = role.value
@@ -143,7 +150,12 @@ async def require_admin(
 async def require_super_admin(
     current_user: dict = Depends(get_current_user),
 ) -> dict:
-    """Require SUPER_ADMIN role."""
+    """Require SUPER_ADMIN role. Rejects API key auth."""
+    if current_user.get("is_api_key"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="API key auth not allowed for admin endpoints",
+        )
     role = current_user.get("role", "USER")
     if hasattr(role, "value"):
         role = role.value
