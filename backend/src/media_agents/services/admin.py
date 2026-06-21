@@ -13,7 +13,7 @@ from typing import Optional
 from fastapi import HTTPException
 
 from media_agents.prisma import prisma
-from media_agents.services.credits import reset_subscription_credits
+from media_agents.services.credits import reset_subscription_credits, add_pack_credits
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +186,6 @@ async def change_tier(
         new_tier,
     )
 
-    return updated if updated else {}
     return _user_to_summary(updated) if updated else {}
 
 
@@ -203,10 +202,9 @@ async def grant_credits(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    update_data = {}
-    if subscription_credits is not None:
-        update_data["subscriptionCredits"] = subscription_credits
     updated = user
+
+    # We update subscriptionCredits directly
     if subscription_credits is not None:
         updated = await prisma.user.update(
             where={"id": str(user_id)},
@@ -219,8 +217,8 @@ async def grant_credits(
             subscription_credits,
         )
 
+    # We use add_pack_credits to preserve its specific behavior/logging instead of combining it into the first query.
     if pack_credits is not None and pack_credits > 0:
-        update_data["packCredits"] = {"increment": pack_credits}
         updated = await add_pack_credits(user_id, pack_credits)
         logger.info(
             "ADMIN_ACTION: %s added %d pack_credits to %s",
@@ -229,14 +227,6 @@ async def grant_credits(
             str(user_id),
         )
 
-    if update_data:
-        updated = await prisma.user.update(
-            where={"id": str(user_id)},
-            data=update_data,
-        )
-        return _user_to_summary(updated) if updated else {}
-
-    return _user_to_summary(user)
     return _user_to_summary(updated) if updated else {}
 
 
