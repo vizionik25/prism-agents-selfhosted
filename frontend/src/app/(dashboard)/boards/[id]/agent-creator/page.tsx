@@ -1073,16 +1073,18 @@ export default function AgentCreatorPage() {
               {/* Identity */}
               <section className="grid gap-3 sm:grid-cols-[1fr_1.6fr]">
                 <div className="space-y-1.5">
-                  <Label>Team name</Label>
+                  <Label htmlFor="team-name">Team name</Label>
                   <Input
+                    id="team-name"
                     placeholder="The Art Dept."
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Description</Label>
+                  <Label htmlFor="team-description">Description</Label>
                   <Input
+                    id="team-description"
                     placeholder="What does this team do?"
                     value={teamDescription}
                     onChange={(e) => setTeamDescription(e.target.value)}
@@ -1154,8 +1156,9 @@ export default function AgentCreatorPage() {
                 </header>
                 <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
                   <div className="space-y-1.5">
-                    <Label>Model</Label>
+                    <Label htmlFor="orch-model">Model</Label>
                     <select
+                      id="orch-model"
                       value={orchModel}
                       onChange={(e) => setOrchModel(e.target.value)}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -1168,9 +1171,10 @@ export default function AgentCreatorPage() {
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Temperature</Label>
+                    <Label htmlFor="orch-temperature">Temperature</Label>
                     <div className="flex items-center gap-3">
                       <input
+                        id="orch-temperature"
                         type="range"
                         min={0}
                         max={2}
@@ -1185,9 +1189,10 @@ export default function AgentCreatorPage() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Spend cap</Label>
+                    <Label htmlFor="orch-spend-cap">Spend cap</Label>
                     <div className="flex items-center gap-1.5">
                       <Input
+                        id="orch-spend-cap"
                         type="number"
                         min={1}
                         step={1}
@@ -1227,8 +1232,9 @@ export default function AgentCreatorPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>System prompt</Label>
+                  <Label htmlFor="orch-system-prompt">System prompt</Label>
                   <Textarea
+                    id="orch-system-prompt"
                     className="min-h-[140px] font-mono text-xs leading-relaxed"
                     value={orchSystemPrompt}
                     onChange={(e) => setOrchSystemPrompt(e.target.value)}
@@ -1385,16 +1391,18 @@ function CreatorPanel(props: {
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label>Agent name</Label>
+              <Label htmlFor="agent-name">Agent name</Label>
               <Input
+                id="agent-name"
                 placeholder="My Custom Agent"
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
+              <Label htmlFor="agent-description">Description</Label>
               <Input
+                id="agent-description"
                 placeholder="What does it do?"
                 value={agentDescription}
                 onChange={(e) => setAgentDescription(e.target.value)}
@@ -1403,8 +1411,9 @@ function CreatorPanel(props: {
           </div>
 
           <div className="space-y-1.5">
-            <Label>System prompt</Label>
+            <Label htmlFor="agent-system-prompt">System prompt</Label>
             <Textarea
+              id="agent-system-prompt"
               placeholder="You are a helpful AI assistant that…"
               className="min-h-[220px] font-mono text-xs leading-relaxed"
               value={systemPrompt}
@@ -1414,8 +1423,9 @@ function CreatorPanel(props: {
 
           {template?.modelChoices && (
             <div className="space-y-1.5">
-              <Label>Model</Label>
+              <Label htmlFor="agent-model">Model</Label>
               <select
+                id="agent-model"
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -2162,9 +2172,9 @@ function ChipRow<T extends string>(props: {
   )
 }
 
-function Label({ children }: { children: React.ReactNode }) {
+function Label({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
   return (
-    <label className="block font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+    <label htmlFor={htmlFor} className="block font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
       {children}
     </label>
   )
