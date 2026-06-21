@@ -12,6 +12,22 @@ def client():
     old_val = env.ENABLE_LOCAL_AUTH
     env.ENABLE_LOCAL_AUTH = True
 
+    from media_agents.main import app
+
+    c = TestClient(app)
+    yield c
+    env.ENABLE_LOCAL_AUTH = old_val
+
+
+import media_agents.env as env  # noqa: E402
+
+env.ENABLE_LOCAL_AUTH = True
+import media_agents.auth.router as auth_router  # noqa: E402
+
+auth_router.ENABLE_LOCAL_AUTH = True
+
+from media_agents.services import user as user_service  # noqa: E402
+
     c = TestClient(app)
     yield c
     env.ENABLE_LOCAL_AUTH = old_val
@@ -36,6 +52,8 @@ def mock_prisma(monkeypatch):
             "avatarUrl": None,
         }
 
+
+
     from media_agents.services import user as user_service
 
     monkeypatch.setattr(user_service, "get_user_by_email", mock_get_user_by_email)
@@ -43,10 +61,12 @@ def mock_prisma(monkeypatch):
     monkeypatch.setattr(user_service, "create_local_user", mock_create_local_user)
 
     # Mock analytics to avoid sending events during tests
+    from media_agents.analytics import analytics  # noqa: E402
     from media_agents.analytics import analytics
 
     monkeypatch.setattr(analytics, "identify", lambda *args, **kwargs: None)
     monkeypatch.setattr(analytics, "capture", lambda *args, **kwargs: None)
+
 
 
 def test_register_weak_password(client):
@@ -72,6 +92,9 @@ def enable_auth():
     env.ENABLE_LOCAL_AUTH = old_val
 
 
+    response = client.post(
+        "/auth/register",
+        json={"username": "testuser", "email": "test@example.com", "password": "weak"},
 def test_register_weak_password(enable_auth, monkeypatch):
     monkeypatch.setattr(user_service, "get_user_by_email", AsyncMock(return_value=None))
     monkeypatch.setattr(
@@ -106,6 +129,7 @@ def test_register_weak_password_no_special(enable_auth, monkeypatch):
         json={
             "username": "testuser",
             "email": "test@example.com",
+            "password": "strongpassword",
             "password": "Password1",
         },
     )
