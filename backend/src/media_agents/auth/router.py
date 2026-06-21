@@ -206,7 +206,6 @@ async def register(data: UserRegister):
         or not re.search(r"[a-z]", password)
         or not re.search(r"\d", password)
         or not re.search(r"[^A-Za-z0-9]", password)
-        or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
