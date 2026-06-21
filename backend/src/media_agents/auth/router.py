@@ -1,5 +1,5 @@
 import re
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response
 
 from media_agents.auth.github import (
     get_github_auth_url,
@@ -10,12 +10,13 @@ from media_agents.auth.github import (
 )
 from media_agents.auth.jwt import create_access_token
 from media_agents.auth.dependencies import get_current_user
+from media_agents.auth.rate_limit import auth_rate_limit
 from media_agents.services import user as user_service
 from media_agents.analytics import analytics
 from media_agents.analytics.events import USER_SIGNED_IN, USER_SIGNED_UP
 from media_agents.analytics.traits import full_identify_payload, signin_traits
 from pydantic import BaseModel
-from media_agents.env import ENABLE_LOCAL_AUTH, ENABLE_GITHUB_AUTH
+from media_agents import env
 from media_agents.auth.pwd_utils import get_password_hash, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -47,27 +48,52 @@ class UserLogin(BaseModel):
 
 
 @router.get("/github")
-async def github_login():
-    if not ENABLE_GITHUB_AUTH:
+async def github_login(response: Response):
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
         )
     state = generate_state()
     url = get_github_auth_url(state)
+
+    # Set state as HttpOnly cookie to prevent CSRF attacks
+    response.set_cookie(
+        key="github_oauth_state",
+        value=state,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=600,  # 10 minutes
+    )
+
     return {"url": url, "state": state}
 
 
 @router.get("/callback", response_model=TokenResponse)
 async def github_callback(
+    request: Request,
+    response: Response,
     code: str = Query(...),
     state: str = Query(...),
 ):
-    if not ENABLE_GITHUB_AUTH:
+    if not env.ENABLE_GITHUB_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub authentication is disabled.",
         )
+
+    # Verify the state parameter against the cookie
+    cookie_state = request.cookies.get("github_oauth_state")
+    if not cookie_state or cookie_state != state:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid state parameter. Possible CSRF attack.",
+        )
+
+    # Clear the cookie once used
+    response.delete_cookie("github_oauth_state")
+
     access_token = await exchange_code_for_token(code)
     if access_token is None:
         raise HTTPException(
@@ -156,9 +182,9 @@ async def github_callback(
     )
 
 
-@router.post("/register", response_model=TokenResponse)
+@router.post("/register", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def register(data: UserRegister):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",
@@ -173,12 +199,13 @@ async def register(data: UserRegister):
             detail="Username must be at least 3 characters.",
         )
     password = data.password
+    # Enforce strong password policy: minimum length and complexity requirements
     if (
         len(password) < 8
         or not re.search(r"[A-Z]", password)
         or not re.search(r"[a-z]", password)
         or not re.search(r"\d", password)
-        or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)
+        or not re.search(r"[^A-Za-z0-9]", password)
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -238,9 +265,9 @@ async def register(data: UserRegister):
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(auth_rate_limit)])
 async def login(data: UserLogin):
-    if not ENABLE_LOCAL_AUTH:
+    if not env.ENABLE_LOCAL_AUTH:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Local authentication is disabled.",

@@ -224,7 +224,8 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 )
             yield {"event": "error", "data": json.dumps(e.detail)}
         else:
-            yield {"event": "error", "data": str(e)}
+            logger.exception("Chat stream initialization failed")
+            yield {"event": "error", "data": "An unexpected error occurred."}
         return
 
     board = await board_service.get_board_by_id(request.board_id, user_id)
@@ -387,6 +388,7 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
         )
 
     except Exception as e:
+        logger.exception("Chat generation failed for generation %s", gen_id)
         await generation_service.update_generation(gen_id, status="FAILED")
         analytics.capture(
             user_id=str(user_id),
@@ -407,7 +409,10 @@ async def stream_chat_events(request: ChatRequest, user_id: uuid.UUID):
                 "error_code": type(e).__name__,
             },
         )
-        yield {"event": "error", "data": str(e)}
+        yield {
+            "event": "error",
+            "data": "An unexpected error occurred during generation.",
+        }
         yield {"event": "generation_end", "data": ""}
         return
 

@@ -227,7 +227,15 @@ async def grant_credits(
             str(user_id),
         )
 
+    if update_data:
+        updated = await prisma.user.update(
+            where={"id": str(user_id)},
+            data=update_data,
+        )
+        return _user_to_summary(updated) if updated else {}
+
     return _user_to_summary(updated) if updated else {}
+    return _user_to_summary(user)
 
 
 async def change_role(

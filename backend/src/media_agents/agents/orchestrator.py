@@ -23,7 +23,7 @@ from typing import Any, AsyncGenerator
 from pydantic_ai import Agent, RunContext
 
 from media_agents.agents.agent_maker import create_agent_from_description
-from media_agents.agents.client import fal_client
+from media_agents.agents.client import fal_client, ImageTo3DRequest
 from media_agents.agents.deps import OrchestratorDeps
 from media_agents.agents.fal_model import (
     fal_chat_model,
@@ -443,7 +443,7 @@ class AgentOrchestrator:
             yield "STATUS:completed"
             return
 
-        # Free-form input — delegate to specialist if active capability matches registry.
+        # Free-form input — delegate to specialist based on active capability in registry.
         yield "STATUS:processing"
         active_cap = (
             self.custom_agent.capabilities[0]
@@ -663,7 +663,8 @@ class AgentOrchestrator:
         if cmd_type == "image_to_3d":
             yield "TEXT:Converting image to 3D model (this may take a moment)..."
             try:
-                urls = await fal_client.generate_3d_from_images(command["url"])
+                request = ImageTo3DRequest(image_url=command["url"])
+                urls = await fal_client.generate_3d_from_images(request)
             except Exception as e:
                 yield f"ERROR:Failed to generate 3D from image: {e}"
                 yield "STATUS:completed"

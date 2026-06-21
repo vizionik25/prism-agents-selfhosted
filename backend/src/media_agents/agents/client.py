@@ -14,6 +14,7 @@ schemas at `https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=<id>`.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 import fal_client as _fal
@@ -23,6 +24,14 @@ def _require(value: str, context: str, raw: Any) -> str:
     if not value:
         raise RuntimeError(f"{context} returned no URL (raw response: {raw!r})")
     return value
+
+
+@dataclass
+class ImageTo3DRequest:
+    image_url: str
+    left_image_url: str = ""
+    back_image_url: str = ""
+    right_image_url: str = ""
 
 
 class FalClient:
@@ -314,19 +323,16 @@ class FalClient:
 
     async def generate_3d_from_images(
         self,
-        image_url: str,
-        left_image_url: str = "",
-        back_image_url: str = "",
-        right_image_url: str = "",
+        request: ImageTo3DRequest,
         model: str = "fal-ai/meshy/v5/multi-image-to-3d",
     ) -> dict[str, str]:
-        arguments: dict[str, Any] = {"image_url": image_url}
-        if left_image_url:
-            arguments["left_image_url"] = left_image_url
-        if back_image_url:
-            arguments["back_image_url"] = back_image_url
-        if right_image_url:
-            arguments["right_image_url"] = right_image_url
+        arguments: dict[str, Any] = {"image_url": request.image_url}
+        if request.left_image_url:
+            arguments["left_image_url"] = request.left_image_url
+        if request.back_image_url:
+            arguments["back_image_url"] = request.back_image_url
+        if request.right_image_url:
+            arguments["right_image_url"] = request.right_image_url
         result = await _fal.run_async(model, arguments=arguments)
         urls = {
             "model_url": (result.get("model_mesh") or {}).get("url", ""),
