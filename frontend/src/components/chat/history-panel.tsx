@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ExternalLink, Copy, Trash2, Image, Film, FileText } from "lucide-react"
+import { ExternalLink, Copy, Trash2, Image, Film, FileText, Loader2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -18,6 +18,7 @@ interface HistoryPanelProps {
 export function HistoryPanel({ boardId }: HistoryPanelProps) {
   const { generations, setGenerations, selectedGeneration, setSelectedGeneration } = useHistoryStore()
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const loadGenerations = async () => {
     try {
@@ -35,6 +36,9 @@ export function HistoryPanel({ boardId }: HistoryPanelProps) {
   }, [boardId])
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this generation?")) return
+
+    setIsDeleting(true)
     try {
       await api.generations.delete(id)
       setGenerations(generations.filter((g) => g.id !== id))
@@ -43,6 +47,8 @@ export function HistoryPanel({ boardId }: HistoryPanelProps) {
       }
     } catch (error) {
       console.error("Failed to delete generation:", error)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -171,9 +177,15 @@ export function HistoryPanel({ boardId }: HistoryPanelProps) {
                     size="sm"
                     className="text-destructive"
                     onClick={() => handleDelete(selectedGeneration.id)}
+                    disabled={isDeleting}
+                    aria-label="Delete generation"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {isDeleting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
+                    )}
+                    {isDeleting ? "Deleting..." : "Delete"}
                   </Button>
                 </div>
               </div>
