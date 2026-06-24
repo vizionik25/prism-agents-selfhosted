@@ -28,6 +28,7 @@ export function PricingSection() {
               onClick={() => setYearly(false)}
               className="px-5 py-2 rounded-md text-sm font-semibold transition-all"
               style={!yearly ? { background: "rgba(0,245,255,0.15)", border: "1px solid rgba(0,245,255,0.3)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}
+              aria-pressed={!yearly}
             >
               Monthly
             </button>
@@ -35,6 +36,7 @@ export function PricingSection() {
               onClick={() => setYearly(true)}
               className="px-5 py-2 rounded-md text-sm font-semibold transition-all"
               style={yearly ? { background: "rgba(0,245,255,0.15)", border: "1px solid rgba(0,245,255,0.3)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}
+              aria-pressed={yearly}
             >
               Yearly <span style={{ color: "#00f5ff" }}>-20%</span>
             </button>
