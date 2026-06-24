@@ -130,8 +130,8 @@ export function UpgradeModal({ open, onClose }: UpgradeModalProps) {
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.7)" }}>Subscriptions</p>
                 <div className="inline-flex rounded border p-0.5 text-xs" style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)" }}>
-                  <button onClick={() => setYearly(false)} className="px-3 py-1 rounded" style={!yearly ? { background: "rgba(0,245,255,0.15)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Monthly</button>
-                  <button onClick={() => setYearly(true)} className="px-3 py-1 rounded" style={yearly ? { background: "rgba(0,245,255,0.15)", color: "white" } : { color: "rgba(255,255,255,0.4)" }}>Yearly <span style={{ color: "#00f5ff" }}>-20%</span></button>
+                  <button onClick={() => setYearly(false)} className="px-3 py-1 rounded" style={!yearly ? { background: "rgba(0,245,255,0.15)", color: "white" } : { color: "rgba(255,255,255,0.4)" }} aria-pressed={!yearly}>Monthly</button>
+                  <button onClick={() => setYearly(true)} className="px-3 py-1 rounded" style={yearly ? { background: "rgba(0,245,255,0.15)", color: "white" } : { color: "rgba(255,255,255,0.4)" }} aria-pressed={yearly}>Yearly <span style={{ color: "#00f5ff" }}>-20%</span></button>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
