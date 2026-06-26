@@ -824,7 +824,11 @@ export function ChatPanel({
               <Plus className={`w-5 h-5 transition-transform duration-200 ${attachPopupOpen ? 'rotate-45' : ''}`} />
             </Button>
 
+            <label htmlFor="chat-input" className="sr-only">
+              Chat message
+            </label>
             <Input
+              id="chat-input"
               ref={inputRef}
               placeholder="Describe what you want to create..."
               value={input}
