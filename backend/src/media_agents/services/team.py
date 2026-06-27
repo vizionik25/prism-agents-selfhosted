@@ -4,7 +4,6 @@ from typing import List, Optional
 from prisma import Json
 from media_agents.schemas.team import TeamCreate, TeamUpdate
 
-from media_agents.schemas.team import TeamCreate, TeamUpdate
 from media_agents.prisma import prisma
 
 

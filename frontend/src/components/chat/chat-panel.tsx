@@ -248,6 +248,30 @@ interface ChatPanelProps {
   activeTeam?: Team | null
 }
 
+const QUICK_COMMANDS = [
+  { group: "Generate", items: [
+    { label: "Generate Image",   prefix: "/image " },
+    { label: "Generate Video",   prefix: "/video " },
+    { label: "Generate Music",   prefix: "/music " },
+    { label: "Human Motion",     prefix: "/motion " },
+  ]},
+  { group: "Analyze", items: [
+    { label: "Analyze Image",    prefix: "/vision " },
+    { label: "Analyze Video",    prefix: "/analyze-video " },
+    { label: "Research Topic",   prefix: "/research " },
+  ]},
+  { group: "3D", items: [
+    { label: "Text to 3D",       prefix: "/3d " },
+    { label: "Image to 3D",      prefix: "/image-to-3d " },
+    { label: "Remesh 3D",        prefix: "/remesh " },
+    { label: "Retexture 3D",     prefix: "/retexture " },
+  ]},
+  { group: "Utility", items: [
+    { label: "Create Agent",     prefix: "/create_agent " },
+    { label: "Help",             prefix: "/help" },
+  ]},
+]
+
 export function ChatPanel({
   boardId,
   agentId,
@@ -411,39 +435,15 @@ export function ChatPanel({
     hoverCloseTimer.current = setTimeout(() => setQuickActionsOpen(false), 150)
   }
 
-  const QUICK_COMMANDS = [
-    { group: "Generate", items: [
-      { label: "Generate Image",   prefix: "/image " },
-      { label: "Generate Video",   prefix: "/video " },
-      { label: "Generate Music",   prefix: "/music " },
-      { label: "Human Motion",     prefix: "/motion " },
-    ]},
-    { group: "Analyze", items: [
-      { label: "Analyze Image",    prefix: "/vision " },
-      { label: "Analyze Video",    prefix: "/analyze-video " },
-      { label: "Research Topic",   prefix: "/research " },
-    ]},
-    { group: "3D", items: [
-      { label: "Text to 3D",       prefix: "/3d " },
-      { label: "Image to 3D",      prefix: "/image-to-3d " },
-      { label: "Remesh 3D",        prefix: "/remesh " },
-      { label: "Retexture 3D",     prefix: "/retexture " },
-    ]},
-    { group: "Utility", items: [
-      { label: "Create Agent",     prefix: "/create_agent " },
-      { label: "Help",             prefix: "/help" },
-    ]},
-  ]
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
