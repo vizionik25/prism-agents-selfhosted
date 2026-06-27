@@ -12,8 +12,6 @@ from media_agents.analytics import analytics
 from media_agents.analytics.events import TEAM_CREATED, TEAM_DELETED
 
 from media_agents.schemas.team import (
-    TeamCreate,
-    TeamUpdate,
     TeamResponse,
     TeamListResponse,
 )
