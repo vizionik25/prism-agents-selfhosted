@@ -267,8 +267,9 @@ export default function AdminUserDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-muted-foreground">Subscription Tier</label>
+              <label htmlFor="subscription-tier" className="text-xs font-semibold text-muted-foreground">Subscription Tier</label>
               <select
+                id="subscription-tier"
                 value={selectedTier}
                 onChange={(e) => setSelectedTier(e.target.value)}
                 className="bg-background border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary w-full"
@@ -302,8 +303,9 @@ export default function AdminUserDetailPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold text-muted-foreground">Sub Credits (Set)</label>
+                <label htmlFor="sub-credits" className="text-xs font-semibold text-muted-foreground">Sub Credits (Set)</label>
                 <Input
+                  id="sub-credits"
                   type="number"
                   min="0"
                   value={subCreditsInput}
@@ -311,8 +313,9 @@ export default function AdminUserDetailPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold text-muted-foreground">Pack Credits (Add)</label>
+                <label htmlFor="pack-credits" className="text-xs font-semibold text-muted-foreground">Pack Credits (Add)</label>
                 <Input
+                  id="pack-credits"
                   type="number"
                   min="0"
                   value={packCreditsInput}
@@ -342,8 +345,9 @@ export default function AdminUserDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold text-muted-foreground">Role</label>
+                <label htmlFor="user-role" className="text-xs font-semibold text-muted-foreground">Role</label>
                 <select
+                  id="user-role"
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
                   className="bg-background border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary w-full"
