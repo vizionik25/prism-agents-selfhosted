@@ -1548,8 +1548,10 @@ function AgentsPanel(props: {
           onChange={(v) => setGalleryCategory(v as Category)}
         />
         <div className="relative ml-auto w-full max-w-[280px]">
+          <label htmlFor="agent-search" className="sr-only">Search agents</label>
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
+            id="agent-search"
             placeholder="Search agents…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

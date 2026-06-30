@@ -100,8 +100,10 @@ export default function AdminUsersPage() {
           {/* Filters and search */}
           <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
+              <label htmlFor="user-search" className="sr-only">Search users</label>
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
+                id="user-search"
                 placeholder="Search username or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
